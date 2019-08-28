@@ -65,7 +65,7 @@ function history(socket, req, type) {
 		skip: 0
 	}
   _params.skip = req && req.pageNum ? (Number(req.pageNum - 1) * Number(_params.pageSize)) : 0
-  logger.info(req)
+  // logger.info(req)
   _async.waterfall([
     (cb) => {
       Transfer.find({from: req.from, coinType: req.coin}).sort({'timestamp': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, results) => {
@@ -73,7 +73,7 @@ function history(socket, req, type) {
           data.msg = 'Error'
           data.info = 'Send history find error!'
           data.error = err.toString()
-          logger.error(err)
+          logger.error(err.toString())
           cb(data)
         } else {
           // logger.info(results)
@@ -87,7 +87,7 @@ function history(socket, req, type) {
           data.msg = 'Error'
           data.info = 'Send history count find error!'
           data.error = err.toString()
-          logger.error(err)
+          logger.error(err.toString())
           cb(data)
         } else {
           data.total = results
@@ -117,7 +117,7 @@ function receiveHistory(socket, req, type) {
 		skip: 0
 	}
   _params.skip = req && req.pageNum ? (Number(req.pageNum - 1) * Number(_params.pageSize)) : 0
-  logger.info(req)
+  // logger.info(req)
   _async.waterfall([
     (cb) => {
       Transfer.find({$or: [{to: req.to}, {contractTo: req.to}], coinType: req.coin, status: req.status}).sort({'timestamp': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, results) => {

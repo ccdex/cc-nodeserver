@@ -5,6 +5,7 @@ const AdverSys = require(pathLink + '/server/manger/adverSys/index')
 const NewsSys = require(pathLink + '/server/manger/newsSys/index')
 const PairsSys = require(pathLink + '/server/manger/pairsSys/index')
 const Users = require(pathLink + '/server/manger/user/index')
+const RoleSys = require(pathLink + '/server/manger/roleSys/index')
 
 function StartSocket (socket, io) {
   // 广告系统
@@ -64,6 +65,19 @@ function StartSocket (socket, io) {
   })
   socket.on('validUser', (req) => {
     Users.validUser(socket, req, 'validUser')
+  })
+  // 权限系统
+  socket.on('roleAdd', (req) => {
+    RoleSys.Add(socket, req, 'roleAdd')
+  })
+  socket.on('roleDele', (req) => {
+    RoleSys.Dele(socket, req, 'roleDele')
+  })
+  socket.on('roleEdit', (req) => {
+    RoleSys.Edit(socket, req, 'roleEdit')
+  })
+  socket.on('roleList', (req) => {
+    RoleSys.List(socket, req, 'roleList')
   })
 }
 

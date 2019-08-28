@@ -219,6 +219,15 @@ const Users = new Schema({
   latestLoginCity: {type: String},
 }, {collection: 'Users'})
 
+const RoleSys = new Schema({
+  name: {type: String},
+  createTime: {type: Number},
+  updateTime: {type: Number},
+  type: {type: Number},
+  limitAuthor: {type: Object},
+}, {collection: 'RoleSys'})
+
+
 
 mongoose.model('Block', Block)
 mongoose.model('Transaction', Transaction)
@@ -236,31 +245,34 @@ mongoose.model('TxnsPairs', TxnsPairs)
 mongoose.model('AdverSys', AdverSys)
 mongoose.model('NewsSys', NewsSys)
 mongoose.model('Users', Users)
+mongoose.model('RoleSys', RoleSys)
 
 
 mongoose.Promise = global.Promise
 logger.info("db.js")
 logger.info($$.config.mongoDBurl)
 mongoose.connect(process.env.MONGO_URI || $$.config.mongoDBurl, {
+  useCreateIndex: true,
   useNewUrlParser: true
 })
 
 
 module.exports = {
-  Block: mongoose.model('Block'),
-  Transaction: mongoose.model('Transaction'),
-  Lockouts: mongoose.model('Lockouts'),
-  Lockins: mongoose.model('Lockins'),
-  Transfer: mongoose.model('Transfer'),
-  Accounts: mongoose.model('Accounts'),
-  DcrmAccount: mongoose.model('DcrmAccount'),
-  Ordercache: mongoose.model('Ordercache'),
-  DexBlocks: mongoose.model('DexBlocks'),
-  DexTxns: mongoose.model('DexTxns'),
-  Orders: mongoose.model('Orders'),
-  KLineCharts: mongoose.model('KLineCharts'),
-  TxnsPairs: mongoose.model('TxnsPairs'),
-  AdverSys: mongoose.model('AdverSys'),
-  NewsSys: mongoose.model('NewsSys'),
-  Users: mongoose.model('Users'),
+  Block:            mongoose.model('Block'),
+  Transaction:      mongoose.model('Transaction'),
+  Lockouts:         mongoose.model('Lockouts'),
+  Lockins:          mongoose.model('Lockins'),
+  Transfer:         mongoose.model('Transfer'),
+  Accounts:         mongoose.model('Accounts'),
+  DcrmAccount:      mongoose.model('DcrmAccount'),
+  Ordercache:       mongoose.model('Ordercache'),
+  DexBlocks:        mongoose.model('DexBlocks'),
+  DexTxns:          mongoose.model('DexTxns'),
+  Orders:           mongoose.model('Orders'),
+  KLineCharts:      mongoose.model('KLineCharts'),
+  TxnsPairs:        mongoose.model('TxnsPairs'),
+  AdverSys:         mongoose.model('AdverSys'),
+  NewsSys:          mongoose.model('NewsSys'),
+  Users:            mongoose.model('Users'),
+  RoleSys:          mongoose.model('RoleSys'),
 }

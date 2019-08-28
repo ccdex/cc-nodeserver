@@ -4,6 +4,7 @@ const pathLink = path
 const Accounts = require(pathLink + '/server/public/accounts/index')
 const Other = require(pathLink + '/server/public/other/getBaseInfo')
 const GetDollar = require(pathLink + '/server/public/other/getDollar')
+const validInfo = require(pathLink + '/server/public/other/validInfo')
 
 
 function walletEnter(socket, io) {

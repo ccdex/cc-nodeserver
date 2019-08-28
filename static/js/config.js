@@ -25,17 +25,8 @@ let publicSet = {
   }
 }
 
-if (typeof location !== 'undefined' && location.port) {
-  if (location.href.indexOf('://localhost') !== -1) {
-    publicSet.appURL = 'ws://localhost:' + httpPort
-  } else {
-    publicSet.appURL = protocolHttp + '//' + location.hostname + ':' + httpPort
-  }
-}
-// publicSet.appURL = 'http://localhost:' + httpPort
-
 const rpc = '207.180.232.145'
-// const rpc = '10.192.33.130'
+// const rpc = '10.192.32.11'
 // const rpc = '10.192.33.196'
 // const rpc = '10.192.32.154'
 // const rpc = '207.180.232.138'
@@ -52,11 +43,5 @@ publicSet.clientRPC = 'http://' + rpc + ':' + port
 publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/fusion'
 publicSet.faucetURL = 'ws://' + rpc + ':30499/faucet'
 publicSet.liloAddrUrl = 'http://5.189.139.168:5000/'
-
-// publicSet.faucetURL = 'wss://walletapp.dcrm.network/mgofaucet'
-// publicSet.appURL = 'wss://walletapp.dcrm.network'
-// console.log(publicSet.appURL)
-// console.log(publicSet.appURL)
-// console.log(protocolHttp + '//' + location.hostname + ":" + httpPort)
 
 module.exports = publicSet
