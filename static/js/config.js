@@ -1,7 +1,7 @@
 const httpPort = 8100
 
 let publicSet = {
-  initCoin: 'FSN', // main coin
+  initCoin: 'CCD', // main coin
   appPort: httpPort, // app port
   appURL: 'wss://api.ccdex.top', // app url
   liloTxnUrl: 'https://data.nodes.run', // lockin txns url
@@ -18,6 +18,6 @@ let publicSet = {
   }
 }
 
-// publicSet.mongoDBurl = 'mongodb://10.192.32.11:27017/fusion'
+// publicSet.mongoDBurl = 'mongodb://18.216.188.149:27017/ccdex'
 
 module.exports = publicSet
