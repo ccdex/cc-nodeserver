@@ -5,6 +5,7 @@ require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
 const TxnsPairs = mongoose.model('TxnsPairs')
 const web3 = require(pathLink + '/server/public/methods/web3')
+const async = require('async')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('TxnsPairs')
 
 function pairsList (socket, req, type) {
@@ -72,24 +73,29 @@ function pairsAdd (socket, req, type) {
     msg: 'Error',
     info: ''
   }
-  web3.lilo.xproAddNewTrade(req.trade)
-  let pairsSys = new TxnsPairs({
-    createTime: Date.now(),
-    sortId: req.sortId,
-    isShow: req.isShow,
-    isTop: req.isTop,
-    remark: req.remark,
-    trade: req.trade
-  })
-  pairsSys.save((err, res) => {
-    if (err) {
-      data.error = err.toString()
-    } else {
-      data.msg = 'Success'
-      data.info = res
-    }
+  try {
+    let newPair = web3.lilo.xproAddNewTrade(req.trade)
+    logger.info(newPair)
+    let pairsSys = new TxnsPairs({
+      createTime: Date.now(),
+      sortId: req.sortId ? req.sortId : 0,
+      isShow: req.isShow ? req.isShow : 1,
+      isTop: req.isTop ? req.isTop : 0,
+      remark: req.remark,
+      trade: req.trade
+    })
+    pairsSys.save((err, res) => {
+      if (err) {
+        data.error = err.toString()
+      } else {
+        data.msg = 'Success'
+        data.info = res
+      }
+      socket.emit(type, data)
+    })
+  } catch (error) {
     socket.emit(type, data)
-  })
+  }
 }
 
 function pairsDele (socket, req, type) {
@@ -121,23 +127,26 @@ function oneTouchPair (socket, req, type) {
     pairData = []
   }
   logger.info(pairData)
-  for (let pair of pairData) {
-    pairArr.push({
-      createTime: Date.now(),
+  let timestamp = Date.now()
+  async.eachSeries(pairData, (pair, cb) => {
+    let updateObj = {
+      createTime: timestamp,
       sortId: 0,
       isShow: 1,
       isTop: 0,
       remark: '',
       trade: pair
-    })
-  }
-  TxnsPairs.insertMany(pairArr, { ordered: false }, (err, res) => {
-    if (err) {
-      data.error = err.toString()
-    } else {
-      data.msg = 'Success'
-      data.info = res
     }
+    TxnsPairs.update({trade: pair}, {'$set': updateObj}, {upsert: true}).exec((err, res) => {
+      if (err) {
+        data.error = err.toString()
+      } else {
+        data.msg = 'Success'
+        data.info = res
+      }
+      cb(null, pair + 'add success')
+    })
+  }, () => {
     socket.emit(type, data)
   })
 }

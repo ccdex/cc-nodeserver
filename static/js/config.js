@@ -6,7 +6,7 @@ let publicSet = {
   appURL: 'wss://api.ccdex.top', // app url
   liloTxnUrl: 'https://data.nodes.run', // lockin txns url
   liloAddrUrl: 'http://54.183.185.30:5000/', // lockin address url
-  mongoDBurl: 'mongodb://localhost:27017/fusion', // app mongodb database url
+  mongoDBurl: 'mongodb://localhost:27017/ccdex', // app mongodb database url
   serverRPC: 'http://18.216.188.149:19839', // web3 server url
   refreshDataTime: 15, // page refersh time
   isUseEnters: {
@@ -17,7 +17,8 @@ let publicSet = {
     // portal: 1,
   }
 }
-
-// publicSet.mongoDBurl = 'mongodb://18.216.188.149:27017/ccdex'
-
+// const rpc = '10.192.32.11',
+//       port = '19839'
+// publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/ccdex'
+// publicSet.serverRPC = 'http://' + rpc + ':' + port
 module.exports = publicSet
