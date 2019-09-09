@@ -3,7 +3,7 @@ const pathLink = path
 
 require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
-const DexTxns = mongoose.model('DexTxns')
+// const DexTxns = mongoose.model('DexTxns')
 const DexBlocks = mongoose.model('DexBlocks')
 const Ordercache = mongoose.model('Ordercache')
 const TxnsPairs = mongoose.model('TxnsPairs')
@@ -20,6 +20,7 @@ let pendingPairInterval = '',
       getTxnsPairs: 'getTxnsPairs',
       pendingBuy: '-buys',
       pendingSell: '-sells',
+      OrderBooks: '-OrderBooks',
       endTxns: '-endTxns',
       KLines: '-KLines'
     }
@@ -61,53 +62,53 @@ function PushPublicData (io, socket) {
             {$group: {
               _id: '$trade',
               openPrice: {$first: '$price'},
-              closePrice: {$last: '$price'},
               high24: {$max: '$price'},
               low24: {$min: '$price'},
               volume: {$sum: '$volumes'}
             }},
           ]).exec((err, results) => {
-            if (results && results.length > 0) {
-              let closePrice = results[0].closePrice ? Number(results[0].closePrice) : 0,
-                  openPrice = results[0].openPrice ? Number(results[0].openPrice) : 0,
-                  pecent = 0
-              if (closePrice === 0 || openPrice === 0) {
-                pecent = 0
-              } else {
-                pecent = closePrice / openPrice
-              }
-              
-              data.getTxnsPairs.push({
-                change: Number(pecent) * 100,
-                volume: results[0].volume,
-                price: closePrice,
-                pair: pair,
-                high24: results[0].high24,
-                low24: results[0].low24,
-                isTop: tradeData.isTop,
-                isShow: tradeData.isShow,
-              })
-            } else {
-              data.getTxnsPairs.push({
-                change: 0,
-                volume: 0,
-                price: 0,
-                pair: pair,
-                high24: 0,
-                low24: 0,
-                isTop: tradeData.isTop,
-                isShow: tradeData.isShow,
-              })
-            }
-            callback(null, pair)
+            callback(null, results)
           })
         },
-        (pair, callback) => {
+        (results, callback) => {
           DexBlocks.find({trade: pair}).sort({'number': -1}).limit(50).exec((err, res) => {
             if (err) {
               logger.error(err.toString())
             } else {
               data.endTxns[pair] = res
+
+              if (results && results.length > 0) {
+                let closePrice = res[0] && res[0].price ? Number(res[0].price) : 0,
+                    openPrice = results[0].openPrice ? Number(results[0].openPrice) : 0,
+                    pecent = 0
+                if (closePrice === 0 || openPrice === 0) {
+                  pecent = 0
+                } else {
+                  pecent = closePrice / openPrice
+                }
+                
+                data.getTxnsPairs.push({
+                  change: Number(pecent) * 100,
+                  volume: results[0].volume,
+                  price: closePrice,
+                  pair: pair,
+                  high24: results[0].high24,
+                  low24: results[0].low24,
+                  isTop: tradeData.isTop,
+                  isShow: tradeData.isShow,
+                })
+              } else {
+                data.getTxnsPairs.push({
+                  change: 0,
+                  volume: 0,
+                  price: 0,
+                  pair: pair,
+                  high24: 0,
+                  low24: 0,
+                  isTop: tradeData.isTop,
+                  isShow: tradeData.isShow,
+                })
+              }
             }
             callback(null, pair)
           })
@@ -178,11 +179,12 @@ function PushPublicData (io, socket) {
             } else {
               _arr = res
             }
-            io.sockets.in(pair + chartNameObj.pendingBuy).emit(pair + chartNameObj.pendingBuy, _arr)
-            callback(null, pair)
+            // io.sockets.in(pair + chartNameObj.pendingBuy).emit(pair + chartNameObj.pendingBuy, _arr)
+            // callback(null, pair)
+            callback(null, _arr)
           })
         },
-        (pair, callback) => {
+        (arr, callback) => {
           Ordercache.aggregate([
             {$sort: {'price': 1}},
             {$match: {trade: pair, side: 'sell'}},
@@ -201,7 +203,12 @@ function PushPublicData (io, socket) {
             } else {
               _arr = res
             }
-            io.sockets.in(pair + chartNameObj.pendingSell).emit(pair + chartNameObj.pendingSell, _arr)
+
+            // io.sockets.in(pair + chartNameObj.pendingSell).emit(pair + chartNameObj.pendingSell, _arr)
+            io.sockets.in(pair + chartNameObj.OrderBooks).emit(pair + chartNameObj.OrderBooks, {
+              buys: arr,
+              sells: _arr
+            })
             callback(null, pair)
           })
         },

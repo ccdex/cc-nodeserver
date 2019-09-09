@@ -144,10 +144,7 @@ function KLineChart (type, io, socket, req) {
         $subtract: [
           {$subtract: ["$timestamp", new Date('1970-01-01') / 1000]},
           {$mod: [
-            {$subtract: ["$timestamp", new Date('1970-01-01') / 1000]},
-            // params.intervalView
-            // 15
-            req.intervalView
+            {$subtract: ["$timestamp", new Date('1970-01-01') / 1000]}, req.intervalView
           ]}
         ]
       },
