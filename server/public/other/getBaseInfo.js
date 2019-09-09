@@ -82,7 +82,7 @@ function base(socket, req, type) {
       }
     }))
   }
-  batch.add(web3.version.getNode.request(function(error, result) {
+  batch.add(web3.version.getNetwork.request(function(error, result) {
     if(error) {
       logger.error('data.info.netWorkInfo')
       logger.error(error.toString())
