@@ -4,26 +4,67 @@ const pathLink = path
 require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
 const NewsSys = mongoose.model('NewsSys')
+const async = require('async')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('NewsSys')
 
 function newsList (socket, req, type) {
-  let params = {}
-  let data = {
-    msg: 'Error',
-    info: []
-  }
-  // logger.info(req)
+  let _params = {
+		pageSize: req && req.pageSize ? req.pageSize : 50,
+		skip: 0
+	}
+  _params.skip = req && req.pageNum ? (Number(req.pageNum - 1) * Number(_params.pageSize)) : 0
+
+  let data = { msg: 'Error', info: [] },
+      params = {}
+  
   if (req) {
     if (req.id) {
       params._id = req.id
     }
+    if (req.searchVal && req.searchKey) {
+      // logger.info(isNaN(req.searchVal))
+      // const reg = new RegExp(req.searchVal, 'ig') 
+      if (req.type) {
+        const reg = new RegExp(req.searchVal, 'ig') 
+        params[req.searchKey] = {'$regex': reg}
+      } else {
+        params[req.searchKey] = req.searchVal
+      }
+    }
+    if (req.timestamp) {
+      params.timestamp = req.timestamp
+    }
   }
-  NewsSys.find(params).sort({ sortId: 1 }).exec((err, res) => {
+
+  async.waterfall([
+    (cb) => {
+      NewsSys.find(params).sort({sortId: 1, 'timestamp': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
+        if (err) {
+          cb(err)
+        } else {
+          cb(null, res)
+        }
+      })
+    },
+    (list, cb) => {
+      NewsSys.find(params).countDocuments((err, results) => {
+        if (err) {
+          cb(err)
+        } else {
+          data.total = results
+          data.info = list
+          cb(null, data)
+        }
+      })
+    }
+  ], (err, res) => {
     if (err) {
+      data.msg = 'Error'
       data.error = err.toString()
+      logger.error(err.toString())
     } else {
       data.msg = 'Success'
-      data.info = res
+      // logger.info(123)
     }
     socket.emit(type, data)
   })

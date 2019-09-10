@@ -61,8 +61,8 @@ function StartSocket (socket, io) {
     sendTxns.sendTxns(socket, req, 'sendTxns')
   })
 
-  socket.on('adverList', (req) => {
-    AdverSys.List(socket, req, 'adverList')
+  socket.on('adverInfo', (req) => {
+    AdverSys.List(socket, req, 'adverInfo')
   })
   
   socket.on('newsList', (req) => {

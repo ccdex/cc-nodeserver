@@ -210,7 +210,7 @@ const NewsSys = new Schema({
 
 const Users = new Schema({
   username: {type: String},
-  mobile: {type: Number, index: { unique: true }},
+  mobile: {type: String, index: { unique: true }},
   password: {type: String},
   createTime: {type: Number},
   updateTime: {type: Number},

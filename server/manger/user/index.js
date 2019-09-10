@@ -4,8 +4,89 @@ const pathLink = path
 require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
 const Users = mongoose.model('Users')
+const async = require('async')
 const encryption = require(pathLink + '/server/public/methods/encryption')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Users')
+
+function findUser (socket, req, type) {
+  let _params = {
+		pageSize: req && req.pageSize ? req.pageSize : 50,
+		skip: 0
+	}
+  _params.skip = req && req.pageNum ? (Number(req.pageNum - 1) * Number(_params.pageSize)) : 0
+
+  let params = {}
+  let data = { msg: 'Error', info: '' }
+  // logger.info(req)
+  if (req) {
+    if (req.id) {
+      params._id = req.id
+    }
+    if (req.username) {
+      params.username = req.username
+    }
+    if (req.mobile) {
+      params.mobile = req.mobile
+    }
+    if (req.role) {
+      params.role = req.role
+    }
+    if (req.searchVal && req.searchKey) {
+      if (req.type) {
+        const reg = new RegExp(req.searchVal, 'ig') 
+        params[req.searchKey] = {'$regex': reg}
+      } else {
+        params[req.searchKey] = req.searchVal
+      }
+    }
+    if (req.timestamp) {
+      params.updatetime = req.timestamp
+    }
+  }
+
+  async.waterfall([
+    (cb) => {
+      Users.find(params).sort({role: 1, 'updatetime': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
+        if (err) {
+          cb(err)
+        } else {
+          cb(null, res)
+        }
+      })
+    },
+    (list, cb) => {
+      Users.find(params).countDocuments((err, results) => {
+        if (err) {
+          cb(err)
+        } else {
+          data.total = results
+          data.info = list
+          cb(null, data)
+        }
+      })
+    }
+  ], (err, res) => {
+    if (err) {
+      data.msg = 'Error'
+      data.error = err.toString()
+      logger.error(err.toString())
+    } else {
+      data.msg = 'Success'
+      // logger.info(123)
+    }
+    socket.emit(type, data)
+  })
+
+  // Users.find(params).sort({ role: 1 }).exec((err, res) => {
+  //   if (err) {
+  //     data.error = err.toString()
+  //   } else {
+  //     data.msg = 'Success'
+  //     data.info = res
+  //   }
+  //   socket.emit(type, data)
+  // })
+}
 
 function createUser (socket, req, type) {
   let params = {}
@@ -106,35 +187,6 @@ function editUser (socket, req, type) {
   params.updateTime = Date.now()
   findParam.mobile = req.mobile
   Users.updateOne(findParam, params).exec((err, res) => {
-    if (err) {
-      data.error = err.toString()
-    } else {
-      data.msg = 'Success'
-      data.info = res
-    }
-    socket.emit(type, data)
-  })
-}
-
-function findUser (socket, req, type) {
-  let params = {}
-  let data = { msg: 'Error', info: '' }
-  // logger.info(req)
-  if (req) {
-    if (req.id) {
-      params._id = req.id
-    }
-    if (req.username) {
-      params.username = req.username
-    }
-    if (req.mobile) {
-      params.mobile = req.mobile
-    }
-    if (req.role) {
-      params.role = req.role
-    }
-  }
-  Users.find(params).sort({ role: 1 }).exec((err, res) => {
     if (err) {
       data.error = err.toString()
     } else {

@@ -16,15 +16,28 @@ function adverList (socket, req, type) {
 
   let data = { msg: 'Error', info: [] },
       params = {}
-  // logger.info(req)
+  
   if (req) {
     if (req.id) {
       params._id = req.id
     }
+    if (req.searchVal && req.searchKey) {
+      // const reg = new RegExp(req.searchVal, 'ig')
+      if (req.type) {
+        const reg = new RegExp(req.searchVal, 'ig') 
+        params[req.searchKey] = {'$regex': reg}
+      } else {
+        params[req.searchKey] = req.searchVal
+      }
+    }
+    if (req.timestamp) {
+      params.timestamp = req.timestamp
+    }
   }
+  // logger.info(params)
   async.waterfall([
     (cb) => {
-      AdverSys.find(params).sort({'timestamp': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
+      AdverSys.find(params).sort({sortId: 1, 'timestamp': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
         if (err) {
           cb(err)
         } else {
@@ -50,7 +63,7 @@ function adverList (socket, req, type) {
       logger.error(err.toString())
     } else {
       data.msg = 'Success'
-      logger.info(123)
+      // logger.info(123)
     }
     socket.emit(type, data)
   })
