@@ -220,11 +220,15 @@ const Users = new Schema({
 }, {collection: 'Users'})
 
 const RoleSys = new Schema({
-  name: {type: String},
-  createTime: {type: Number},
-  updateTime: {type: Number},
-  type: {type: Number},
-  limitAuthor: {type: Object},
+  name: {type: String, required: true},
+  createTime: {type: Number, required: true},
+  updateTime: {type: Number, required: true},
+  type: {type: Number,unique: true},
+  sysAdver: {type: Object, required: true},
+  sysNews: {type: Object, required: true},
+  sysPairs: {type: Object, required: true},
+  sysUsers: {type: Object, required: true},
+  sysRole: {type: Object, required: true},
 }, {collection: 'RoleSys'})
 
 

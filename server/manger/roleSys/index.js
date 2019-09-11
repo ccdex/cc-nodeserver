@@ -67,16 +67,6 @@ function roleList(socket, req, type) {
     }
     socket.emit(type, data)
   })
-  // RoleSys.find(params).exec((err, res) => {
-  //   if (err) {
-  //     logger.error(err.toString())
-  //     data.err = err.toString()
-  //   } else {
-  //     data.msg = 'Success'
-  //     data.info = res
-  //   }
-  //   socket.emit(type, data)
-  // })
 }
 
 function roleEdit(socket, req, type) {
@@ -85,7 +75,31 @@ function roleEdit(socket, req, type) {
     msg: 'Error',
     info: []
   }
-  RoleSys.updateOne(params,{}).exec((err, res) => {
+  if (req) {
+    if (req.name) {
+      params.name = req.name
+    }
+    if (req.type) {
+      params.type = req.type
+    }
+    if (req.sysAdver) {
+      params.sysAdver = req.sysAdver
+    }
+    if (req.sysNews) {
+      params.sysNews = req.sysNews
+    }
+    if (req.sysPairs) {
+      params.sysPairs = req.sysPairs
+    }
+    if (req.sysUsers) {
+      params.sysUsers = req.sysUsers
+    }
+    if (req.sysRole) {
+      params.sysRole = req.sysRole
+    }
+    params.updateTime = Date.now()
+  }
+  RoleSys.updateOne({_id: req.id}, params).exec((err, res) => {
     if (err) {
       logger.error(err.toString())
       data.err = err.toString()
@@ -106,9 +120,13 @@ function roleAdd(socket, req, type) {
   let roleSys = new RoleSys({
     name: req.name,
     type: req.type,
-    limitAuthor: req.limitAuthor,
-    createtime: Date.now(),
-    updatetime: Date.now(),
+    createTime: Date.now(),
+    updateTime: Date.now(),
+    sysAdver: req.sysAdver,
+    sysNews: req.sysAdver,
+    sysPairs: req.sysAdver,
+    sysUsers: req.sysAdver,
+    sysRole: req.sysAdver,
   })
   roleSys.save((err, res) => {
     if (err) {
@@ -123,12 +141,11 @@ function roleAdd(socket, req, type) {
 }
 
 function roleDele(socket, req, type) {
-  let params = {}
   let data = {
     msg: 'Error',
     info: []
   }
-  RoleSys.remove(params).exec((err, res) => {
+  RoleSys.remove({ _id: req.id }, (err, res) => {
     if (err) {
       logger.error(err.toString())
       data.err = err.toString()
