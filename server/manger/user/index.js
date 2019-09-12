@@ -120,26 +120,64 @@ function createUser (socket, req, type) {
     return
   }
   logger.info(params)
-  let user = new Users({
-    username: '',
-    mobile: params.mobile,
-    password: params.password,
-    createTime: Date.now(),
-    updateTime: Date.now(),
-    role: 3,
-    latestLoginIP: req.latestLoginIP,
-    latestLoginCity: req.latestLoginCity,
-  })
-  logger.info(user)
-  user.save((err, res) => {
-    if (err) {
-      data.error = err.toString()
-    } else {
-      data.msg = 'Success'
-      data.info = res
+  async.waterfall([
+    (cb) => {
+      Users.find({mobile: params.mobile}).exec((err, results) => {
+        // logger.info(results)
+        if (!results || results.length <= 0) {
+          cb(null, results)
+        } else {
+          data.msg = 'Repeat'
+          cb(data)
+        }
+      })
+    },
+    (res, cb) => {
+      let user = new Users({
+        username: '',
+        mobile: params.mobile,
+        password: params.password,
+        createTime: Date.now(),
+        updateTime: Date.now(),
+        role: 3,
+        latestLoginIP: req.latestLoginIP,
+        latestLoginCity: req.latestLoginCity,
+      })
+      // logger.info(user)
+      // logger.info(res)
+      user.save((err, results) => {
+        if (err) {
+          data.error = err.toString()
+        } else {
+          data.msg = 'Success'
+          data.info = results
+        }
+        cb(null, data)
+      })
     }
+  ], () => {
     socket.emit(type, data)
   })
+  // let user = new Users({
+  //   username: '',
+  //   mobile: params.mobile,
+  //   password: params.password,
+  //   createTime: Date.now(),
+  //   updateTime: Date.now(),
+  //   role: 3,
+  //   latestLoginIP: req.latestLoginIP,
+  //   latestLoginCity: req.latestLoginCity,
+  // })
+  // logger.info(user)
+  // user.save((err, res) => {
+  //   if (err) {
+  //     data.error = err.toString()
+  //   } else {
+  //     data.msg = 'Success'
+  //     data.info = res
+  //   }
+  //   socket.emit(type, data)
+  // })
 }
 
 function deleUser (socket, req, type) {
