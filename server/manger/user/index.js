@@ -4,6 +4,7 @@ const pathLink = path
 require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
 const Users = mongoose.model('Users')
+const RoleSys = mongoose.model('RoleSys')
 const async = require('async')
 const encryption = require(pathLink + '/server/public/methods/encryption')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Users')
@@ -62,6 +63,16 @@ function findUser (socket, req, type) {
           data.total = results
           data.info = list
           cb(null, data)
+        }
+      })
+    },
+    ($data, cb) => {
+      RoleSys.find({}, {name: 1, type: 1}).sort({'type': 1}).exec((err, res) => {
+        if (err) {
+          cb(err)
+        } else {
+          data.role = res
+          cb(null, res)
         }
       })
     }
@@ -153,7 +164,7 @@ function deleUser (socket, req, type) {
 }
 
 function editUser (socket, req, type) {
-  let params = {}, findParam = {}
+  let params = {}
   let data = { msg: 'Error', info: '' }
   if (req && req.mobile) {
     params.mobile = req.mobile
@@ -185,8 +196,8 @@ function editUser (socket, req, type) {
     }
   }
   params.updateTime = Date.now()
-  findParam.mobile = req.mobile
-  Users.updateOne(findParam, params).exec((err, res) => {
+  logger.info(params)
+  Users.update({_id: req.id}, params).exec((err, res) => {
     if (err) {
       data.error = err.toString()
     } else {
@@ -201,52 +212,89 @@ function validUser (socket, req, type) {
   let params = {}, updateParams = {}
   let data = { msg: 'Error', info: '' }
   // logger.info(req)
+  if (!req.mobile || !req.password) {
+    data.info = ''
+    socket.emit(type, data)
+  } else {
+    params.mobile = req.mobile
+  }
   if (req) {
     if (req.password || req.password === 0) {
       params.password = encryption(req.password)
-    }
-    if (req.username) {
-      params.$or = [{username: req.username}]
-      if (!isNaN(req.username)) {
-        params.$or.push({mobile: req.username})
-      }
-      // {
-      //   username: req.username,
-      //   mobile: req.mobile,
-      // }
     }
     if (req.latestLoginIP || req.latestLoginIP === 0) {
       updateParams.latestLoginIP = req.latestLoginIP
     }
     if (req.latestLoginCity || req.latestLoginCity === 0) {
       updateParams.latestLoginCity = req.latestLoginCity
+      updateParams.updateTime = Date.now()
     }
-    updateParams.updateTime = Date.now()
   }
   logger.info(params)
-  Users.find(params).sort({ role: 1 }).exec((err, res) => {
-    if (err) {
-      data.error = err.toString()
-      data.info = 'No such user'
-    } else {
-      // logger.info(res)
-      if (res.length > 0) {
-        data.msg = 'Success'
-        data.info = res
-        Users.updateOne({_id: res[0]._id}, updateParams).exec((error, results) => {
-          if (error) {
-            logger.error(error.toString())
-          } else {
-            logger.info(results)
+  async.waterfall([
+    (cb) => {
+      Users.find(params).sort({ role: 1 }).exec((err, res) => {
+        if (res && res.length > 0) {
+          data.info = res
+          cb(null, res)
+        } else {
+          data.msg = 'Null'
+          if (err) {
+            data.error = err.toString()
           }
-        })
-      } else {
-        data.msg = 'Null'
-        data.info = 'No such user'
-      }
+          cb(data)
+        }
+      })
+    },
+    (res, cb) => {
+      Users.update({_id: res[0]._id}, updateParams).exec((error, results) => {
+        if (error) {
+          data.error = err.toString()
+          cb(data)
+        } else {
+          cb(null, res)
+        }
+      })
+    },
+    (res, cb) => {
+      RoleSys.find({type: res[0].role}).exec((err, results) => {
+        if (err) {
+          data.error = err.toString()
+          cb(err)
+        } else {
+          data.msg = 'Success'
+          data.role = results
+          cb(null, results)
+        }
+      })
     }
+  ], () => {
+    
     socket.emit(type, data)
   })
+  // Users.find(params).sort({ role: 1 }).exec((err, res) => {
+  //   if (err) {
+  //     data.error = err.toString()
+  //     data.info = 'No such user'
+  //   } else {
+  //     // logger.info(res)
+  //     if (res.length > 0) {
+  //       data.msg = 'Success'
+  //       data.info = res
+  //       Users.updateOne({_id: res[0]._id}, updateParams).exec((error, results) => {
+  //         if (error) {
+  //           logger.error(error.toString())
+  //         } else {
+  //           logger.info(results)
+  //         }
+  //       })
+  //     } else {
+  //       data.msg = 'Null'
+  //       data.info = 'No such user'
+  //     }
+  //   }
+  //   socket.emit(type, data)
+  // })
 }
 
 module.exports = {

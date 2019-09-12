@@ -210,7 +210,7 @@ const NewsSys = new Schema({
 
 const Users = new Schema({
   username: {type: String},
-  mobile: {type: String, index: { unique: true }},
+  mobile: {type: String, unique: true},
   password: {type: String},
   createTime: {type: Number},
   updateTime: {type: Number},
@@ -223,7 +223,7 @@ const RoleSys = new Schema({
   name: {type: String, required: true},
   createTime: {type: Number, required: true},
   updateTime: {type: Number, required: true},
-  type: {type: Number,unique: true},
+  type: {type: Number, unique: true},
   sysAdver: {type: Object, required: true},
   sysNews: {type: Object, required: true},
   sysPairs: {type: Object, required: true},
@@ -232,6 +232,19 @@ const RoleSys = new Schema({
 }, {collection: 'RoleSys'})
 
 
+Block.index({number: 1, type: -1})
+Transaction.index({timestamp: 1, type: -1})
+Lockouts.index({timestamp: 1, type: -1})
+Lockins.index({timestamp: 1, type: -1})
+Transfer.index({timestamp: 1, type: -1})
+Accounts.index({balance: 1, type: -1})
+Ordercache.index({price: 1, type: 1})
+DexBlocks.index({number: 1, type: 1}, {timestamp: 1, type: -1})
+DexTxns.index({timestamp: 1, type: -1})
+Orders.index({timestamp: 1, type: -1})
+AdverSys.index({timestamp: 1, type: -1})
+NewsSys.index({updateTime: 1, type: -1})
+Users.index({updateTime: 1, type: -1})
 
 mongoose.model('Block', Block)
 mongoose.model('Transaction', Transaction)
