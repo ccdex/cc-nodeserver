@@ -110,10 +110,10 @@ function PushPublicData (io, socket) {
                 })
               }
             }
-            callback(null, pair)
+            callback(null, res)
           })
         },
-        (pair, callback) => {
+        (res, callback) => {
           DexBlocks.aggregate([
             {$match: {trade: pair, timestamp: {$gt: $$.toTime(oldTime),$lte: $$.toTime(nowTime)}}},
             {$sort: {'timestamp': -1} },
@@ -133,6 +133,11 @@ function PushPublicData (io, socket) {
             if (err) {
               logger.error(err.toString())
             } else {
+              // logger.info(results)
+              if (res.length > 0 && results.length > 0) {
+                results[0].close = res[0].price
+              }
+              // logger.info(results)
               data.KLines[pair] = results
             }
             callback(null, pair)
