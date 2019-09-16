@@ -5,47 +5,12 @@ require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
 // const DexTxns = mongoose.model('DexTxns')
 const DexBlocks = mongoose.model('DexBlocks')
-// const Order = mongoose.model('Order')
-const KLineCharts = mongoose.model('KLineCharts')
 const DexTxns = mongoose.model('DexTxns')
 // const web3 = require('../methods/web3.js')
 const _async = require('async')
 const $$ = require(pathLink + '/server/public/methods/methods')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('KLineChart')
 
-// function KLineChart (socket, req, type) {
-//   let _limit = req && req.pageSize ? req.pageSize : 20
-//   let _skip = req && req.pageNum ? (Number(req.pageNum - 1) * Number(_limit)) : 0
-//   let params = {}
-//   let data = {
-//     msg: 'Error',
-//     info: ''
-//   }
-//   if (req && req.trade) {
-//     params.trade = req.trade
-//   }
-//   if (req && req.$or) {
-//     params.$or = req.$or
-//   }
-//   if (req && req.timestamp) {
-//     params.timestamp = req.timestamp
-//   }
-//   logger.info(req)
-//   logger.info(params)
-//   KLineCharts.find(params).sort({timestamp: 1}).exec((err, results) => {
-//     if (err) {
-//       data = { msg: 'Error', info: [], error: err.toString(), tip: 'Get k line data error!' }
-//       logger.error(err.toString())
-//     } else {
-//       if (results.length > 0) {
-//         data = { msg: 'Success', info: results }
-//       } else {
-//         data = { msg: 'Null', info: [], tip: 'K line data is null!' }
-//       }
-//     }
-//     socket.emit(type, data)
-//   })
-// }
 
 function KLineChartGroup (io, req, pairArr) {
   let params = {}
@@ -132,8 +97,8 @@ function KLineChart (type, io, socket, req) {
   //   params.intervalView = req.intervalView * 60
   // }
 
-  logger.info(req)
-  logger.info(params)
+  // logger.info(req)
+  // logger.info(params)
   DexBlocks.aggregate([
     // {$match: {trade: params.trade}},
     {$match: params},
@@ -184,7 +149,7 @@ function GetBestPrice (socket, req, type) {
     msg: 'Error',
     info: ''
   }
-  logger.info(req)
+  // logger.info(req)
   if (req && req.trade) {
     params.trade = req.trade
   } else {

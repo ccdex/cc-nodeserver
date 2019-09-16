@@ -165,17 +165,6 @@ const Orders = new Schema({
   status: {type: Number}
 }, {collection: "Orders"})
 
-const KLineCharts = new Schema({
-  timestamp: {type: Number},
-  close: {type: Number},
-  open: {type: Number},
-  high: {type: Number},
-  low: {type: Number},
-  volume: {type: Number},
-  trade: {type: String},
-  keyId: {type: String},
-}, {collection: "KLineCharts"})
-
 const TxnsPairs = new Schema({
   trade: { type: String },
   isShow: { type: Number },
@@ -232,19 +221,21 @@ const RoleSys = new Schema({
 }, {collection: 'RoleSys'})
 
 
-Block.index({number: 1, type: -1})
-Transaction.index({timestamp: 1, type: -1})
-Lockouts.index({timestamp: 1, type: -1})
-Lockins.index({timestamp: 1, type: -1})
-Transfer.index({timestamp: 1, type: -1})
-Accounts.index({balance: 1, type: -1})
-Ordercache.index({price: 1, type: 1})
-DexBlocks.index({number: 1, type: 1}, {timestamp: 1, type: -1})
-DexTxns.index({timestamp: 1, type: -1})
-Orders.index({timestamp: 1, type: -1})
-AdverSys.index({timestamp: 1, type: -1})
-NewsSys.index({updateTime: 1, type: -1})
-Users.index({updateTime: 1, type: -1})
+Block.index({number: -1, timestamp: -1}, {background: 1})
+Transaction.index({blockNumber: -1, timestamp: -1}, {background: 1})
+Lockouts.index({timestamp: -1}, {background: 1})
+Lockins.index({timestamp: -1}, {background: 1})
+Transfer.index({timestamp: -1}, {background: 1})
+Accounts.index({balance: -1}, {background: 1})
+Ordercache.index({price: 1}, {background: 1})
+DexBlocks.index({number: -1, timestamp: -1}, {background: 1})
+DexTxns.index({number: -1, timestamp: -1}, {background: 1})
+Orders.index({timestamp: -1}, {background: 1})
+TxnsPairs.index({sortId: 1}, {background: 1})
+AdverSys.index({sortId: 1, timestamp: -1}, {background: 1})
+NewsSys.index({sortId: 1, updateTime: -1}, {background: 1})
+Users.index({role: 1, updateTime: -1}, {background: 1})
+RoleSys.index({type: 1, updateTime: -1}, {background: 1})
 
 mongoose.model('Block', Block)
 mongoose.model('Transaction', Transaction)
@@ -257,7 +248,6 @@ mongoose.model('Ordercache', Ordercache)
 mongoose.model('DexBlocks', DexBlocks)
 mongoose.model('DexTxns', DexTxns)
 mongoose.model('Orders', Orders)
-mongoose.model('KLineCharts', KLineCharts)
 mongoose.model('TxnsPairs', TxnsPairs)
 mongoose.model('AdverSys', AdverSys)
 mongoose.model('NewsSys', NewsSys)
@@ -286,7 +276,6 @@ module.exports = {
   DexBlocks:        mongoose.model('DexBlocks'),
   DexTxns:          mongoose.model('DexTxns'),
   Orders:           mongoose.model('Orders'),
-  KLineCharts:      mongoose.model('KLineCharts'),
   TxnsPairs:        mongoose.model('TxnsPairs'),
   AdverSys:         mongoose.model('AdverSys'),
   NewsSys:          mongoose.model('NewsSys'),

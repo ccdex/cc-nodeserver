@@ -17,9 +17,14 @@ let publicSet = {
     // portal: 1,
   }
 }
-// const rpc = '10.192.32.11'
-// const rpc = '18.216.188.149'
-// const port = '19839'
-// publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/ccdex'
+// const rpc = '10.192.32.40'
+// const rpc = '10.192.32.19'
+// const rpc = '207.180.232.138'
+const rpc = '18.216.188.149'
+// const port = '8774'
+// const port = '9909'
+publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/ccdex'
+// publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/fusion'
+publicSet.appURL = 'http://localhost:8100'
 // publicSet.serverRPC = 'http://' + rpc + ':' + port
 module.exports = publicSet

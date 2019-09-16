@@ -54,8 +54,7 @@ function BlockList(socket, req, type, io) {
 			})
 		},
 		(data, cb) => {
-			// Block.find(params).lean(true).sort({"timestamp": -1}).skip(params.skip).limit(Number(params.pageSize)).exec((err,result) => {
-			Block.find(params).lean(true).sort({"number": -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err,result) => {
+			Block.find(params).lean(true).skip(Number(_params.skip)).sort({"number": -1}).limit(Number(_params.pageSize)).exec((err,result) => {
 				if (!err) {
 					// total()
 					data.msg = 'Success'

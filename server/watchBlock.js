@@ -12,9 +12,11 @@ const socketExplorer = io($$.config.appURL)
 
 let newBlocks = null
 async function listenBlocks () {
+  // logger.info(123456789)
+  socketExplorer.emit('listenBlock', $$.config.appURL)
   setTimeout(() => {
     listenBlocks()
-    socketExplorer.emit('listenBlock', $$.config.appURL)
+    // socketExplorer.emit('listenBlock', $$.config.appURL)
   }, 5 * 1000)
   // if (!web3.isConnected()) {
   //   logger.error('connect error!')

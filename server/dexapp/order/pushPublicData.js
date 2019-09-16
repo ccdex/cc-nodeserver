@@ -134,7 +134,7 @@ function PushPublicData (io, socket) {
               logger.error(err.toString())
             } else {
               // logger.info(results)
-              if (res.length > 0 && results.length > 0) {
+              if (res && res.length > 0 && results.length > 0) {
                 results[0].close = res[0].price
               }
               // logger.info(results)
@@ -143,16 +143,18 @@ function PushPublicData (io, socket) {
             callback(null, pair)
           })
         }
-      ], (err, result) => {
+      ], () => {
         cb(null, pair)
       })
-    }, (err, result) => {
+    }, () => {
       for (let pair of pairArr) {
         let _pair = pair.trade
         // let _pair = pair
         io.sockets.in(_pair + chartNameObj.endTxns).emit(_pair + chartNameObj.endTxns, (data.endTxns[_pair] ? data.endTxns[_pair] : []))
         io.sockets.in(_pair + chartNameObj.KLines).emit(_pair + chartNameObj.KLines, (data.KLines[_pair] ? data.KLines[_pair] : []))
       }
+      // logger.info(chartNameObj.getTxnsPairs)
+      // logger.info(data.getTxnsPairs)
       io.sockets.in(chartNameObj.getTxnsPairs).emit(chartNameObj.getTxnsPairs, data.getTxnsPairs)
       oldTime = nowTime
     })
@@ -184,8 +186,6 @@ function PushPublicData (io, socket) {
             } else {
               _arr = res
             }
-            // io.sockets.in(pair + chartNameObj.pendingBuy).emit(pair + chartNameObj.pendingBuy, _arr)
-            // callback(null, pair)
             callback(null, _arr)
           })
         },
@@ -208,8 +208,6 @@ function PushPublicData (io, socket) {
             } else {
               _arr = res
             }
-
-            // io.sockets.in(pair + chartNameObj.pendingSell).emit(pair + chartNameObj.pendingSell, _arr)
             io.sockets.in(pair + chartNameObj.OrderBooks).emit(pair + chartNameObj.OrderBooks, {
               buys: arr,
               sells: _arr
@@ -239,8 +237,6 @@ function PushPublicData (io, socket) {
       pushMethods(_arr)
     } else {
       io.sockets.in(chartNameObj.getTxnsPairs).emit(chartNameObj.getTxnsPairs, [])
-      // io.sockets.in(chartNameObj.endTxns).emit(chartNameObj.endTxns, [])
-      // io.sockets.in(chartNameObj.KLines).emit(chartNameObj.KLines, [])
     }
     clearTimeout(PairInterval)
     PairInterval = setTimeout(() => {
