@@ -18,7 +18,7 @@ function BlockList(socket, req, type) {
 	let data = {
 		msg: '',
 		info: '',
-		total: ''
+		total: 0
 	}
 	type = type ? type : 'blocks'
 	let params = {}
