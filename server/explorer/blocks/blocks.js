@@ -9,7 +9,7 @@ const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Bl
 const $$ = require(pathLink + '/server/public/methods/methods')
 
 // function blocks(socket, req, type) {
-function BlockList(socket, req, type, io) {
+function BlockList(socket, req, type) {
 	let _params = {
 		pageSize: req && req.pageSize ? req.pageSize : 50,
 		skip: 0
@@ -39,59 +39,42 @@ function BlockList(socket, req, type, io) {
 	async.waterfall([
 		(cb) => {
 			Block.find(params).countDocuments((err, result) => {
-				if (!err) {
-					data.msg = 'Success'
-					data.total = result
-					cb(null, data)
-				} else {
-					logger.error(err)
+				if (err) {
 					data.msg = 'Error'
 					data.error = err.toString()
 					data.info = []
-					cb(data)
+					cb(err)
+				} else {
+					data.total = result
+					cb(null, data)
 				}
-				// info()
 			})
 		},
-		(data, cb) => {
-			Block.find(params).lean(true).skip(Number(_params.skip)).sort({"number": -1}).limit(Number(_params.pageSize)).exec((err,result) => {
-				if (!err) {
-					// total()
+		(res, cb) => {
+			Block.find(params).lean(true).sort({"number": -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err,result) => {
+				if (err) {
+					data.msg = 'Error'
+					data.error = err.toString()
+					data.info = []
+					cb(err)
+				} else {
 					data.msg = 'Success'
 					for (let i = 0, len = result.length; i < len; i++) {
 						result[i].reward = $$.fromWei(result[i].reward, 'ether')
 					}
 					data.info = result
 					cb(null, data)
-				} else {
-					logger.error(err)
-					data.msg = 'Error'
-					data.error = err.toString()
-					data.info = []
-					cb(data)
 				}
 			})
 		}
-	], (err, data) => {
-		let cbData = ''
+	], (err) => {
 		if (err) {
-			// socket.emit(type, err)
-			cbData = err
-		} else {
-			// socket.emit(type, data)
-			cbData = data
+			logger.error(err)
 		}
-		if (io) {
-			io.sockets.in(type).emit(type, cbData)
-		} else {
-			socket.emit(type, cbData)
-		}
-		// logger.info(type + ' callback data success')
+		socket.emit(type, data)
 	})
 }
 
-// router.post('/blockNum', (req, res) => {
-// function blockNum(socket, req, type) {
 function BlockDtil(socket, req, type) {
 	let params = {
 		number: req.number ? req.number : 0

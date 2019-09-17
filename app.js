@@ -1,11 +1,13 @@
+const path = require("path").resolve(".")
+const pathLink = path
+
+
 const http = require('http')
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 
-const path = require("path").resolve(".")
-const pathLink = path
-// const web3 = require('./server/web3')
+
 const config = require('./static/js/config')
 const httpPort =  config.appPort
 
@@ -30,36 +32,29 @@ const httpServer = http.createServer(app).listen(httpPort)
 const io = require('socket.io')({})
 io.attach(httpServer)
 
-
-
-
+// app list enter
 const StartSocket = require('./server/index')
-const startServer = require(pathLink + '/server/dexapp/order/pushPublicData')
-const GetDollar = require(pathLink + '/server/public/other/getDollar')
-const Blocks = require(pathLink + '/server/explorer/blocks/blocks')
-const Txns = require(pathLink + '/server/explorer/txns/txns')
-GetDollar.intervalGetDollar(io)
 
+// dex self push
+const startServer = require(pathLink + '/server/dexapp/order/pushPublicData')
 if (config.isUseEnters.dexapp) {
   startServer(io)
 }
 
+// ex self push
+const PushBlockInfo = require(pathLink + '/server/explorer/pushBlockInfo/index')
+if (config.isUseEnters.explorer) {
+  PushBlockInfo.PushBlockInfo(io)
+}
 
+// public price push
+const GetDollar = require(pathLink + '/server/public/other/getDollar')
+GetDollar.intervalGetDollar(io)
 
 let peopleCount = 0
 io.on('connection', function (socket) {
   peopleCount ++
   StartSocket(socket, io)
-
-
-
-  socket.on('listenBlock', hax => {
-    // logger.info(hax)
-    if (config.isUseEnters.explorer) {
-      Blocks.List(socket, '', 'blocksRefresh', io)
-      Txns.List(socket, '', 'transactionRefresh', io)
-    }
-  })
   
   socket.on('joinDataList', (data) => {
     socket.join(data)
@@ -70,14 +65,7 @@ io.on('connection', function (socket) {
   })
   
   socket.on('disconnect',function(){
-    peopleCount--;
+    peopleCount--
   })
   logger.info(peopleCount + ' user')
 })
-
-const watchBlock = require(pathLink + '/server/watchBlock')
-try {
-  watchBlock()
-} catch (error) {
-  logger.error(error.toString())
-}

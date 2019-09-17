@@ -150,8 +150,8 @@ function PushPublicData (io, socket) {
       for (let pair of pairArr) {
         let _pair = pair.trade
         // let _pair = pair
-        io.sockets.in(_pair + chartNameObj.endTxns).emit(_pair + chartNameObj.endTxns, (data.endTxns[_pair] ? data.endTxns[_pair] : []))
         io.sockets.in(_pair + chartNameObj.KLines).emit(_pair + chartNameObj.KLines, (data.KLines[_pair] ? data.KLines[_pair] : []))
+        io.sockets.in(_pair + chartNameObj.endTxns).emit(_pair + chartNameObj.endTxns, (data.endTxns[_pair] ? data.endTxns[_pair] : []))
       }
       // logger.info(chartNameObj.getTxnsPairs)
       // logger.info(data.getTxnsPairs)
