@@ -5,7 +5,7 @@ const Accounts = require(pathLink + '/server/public/accounts/index')
 const Other = require(pathLink + '/server/public/other/getBaseInfo')
 const GetDollar = require(pathLink + '/server/public/other/getDollar')
 const validInfo = require(pathLink + '/server/public/other/validInfo')
-
+const sendTxns = require(pathLink + '/server/public/other/sendTxns')
 
 function walletEnter(socket, io) {
   socket.on('queryAccount', (req) => {
@@ -22,6 +22,9 @@ function walletEnter(socket, io) {
   })
   socket.on('validInfo', (req) => {
     validInfo.validSearchType(socket, req, 'validInfo')
+  })
+  socket.on('sendTxns', (req) => {
+      sendTxns.sendTxns(socket, req, 'sendTxns')
   })
 }
 

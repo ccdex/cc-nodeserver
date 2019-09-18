@@ -19,7 +19,7 @@ const ChartsAccount = require(pathLink + '/server/explorer/chart/accountChart')
 
 const Other = require(pathLink + '/server/public/other/other')
 
-const sendTxns = require(pathLink + '/server/public/other/sendTxns')
+// const sendTxns = require(pathLink + '/server/public/other/sendTxns')
 
 function StartSocket (socket, io) {
 
@@ -104,9 +104,9 @@ function StartSocket (socket, io) {
         ChartsAccount(socket, req, 'addressChart')
     })
 
-    socket.on('sendTxns', (req) => {
-        sendTxns.sendTxns(socket, req, 'sendTxns')
-    })
+    // socket.on('sendTxns', (req) => {
+    //     sendTxns.sendTxns(socket, req, 'sendTxns')
+    // })
 }
 
 module.exports = StartSocket

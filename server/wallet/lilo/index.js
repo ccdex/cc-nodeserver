@@ -4,7 +4,7 @@ const pathLink = path
 require(pathLink + '/server/public/methods/db.js')
 const httpReq = require(pathLink + '/server/public/methods/httpReq')
 const $$ = require(pathLink + '/server/public/methods/methods')
-const web3 = require(pathLink + '/server/public/methods/web3')
+// const web3 = require(pathLink + '/server/public/methods/web3')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('lilo')
 
 // logger.info(__dirname)
@@ -16,34 +16,34 @@ const _async = require('async')
 // const configData = require('../../static/js/config')
 
 // router.post('/sendTxn', (req, res) => {
-function sendTxn(socket, req, type) {
-  let data = { msg: 'Error', info: '' }
-  if (!req.serializedTx) {
-    data = { msg: 'Error', info: 'serializedTx is null' }
-    socket.emit(type, data)
-    return
-  }
-  let url = req.url ? req.url : $$.config.serverRPC
-  web3.setProvider(new web3.providers.HttpProvider(url))
+// function sendTxn(socket, req, type) {
+//   let data = { msg: 'Error', info: '' }
+//   if (!req.serializedTx) {
+//     data = { msg: 'Error', info: 'serializedTx is null' }
+//     socket.emit(type, data)
+//     return
+//   }
+//   let url = req.url ? req.url : $$.config.serverRPC
+//   web3.setProvider(new web3.providers.HttpProvider(url))
 
-  // logger.info(req)
+//   // logger.info(req)
 
-  web3.eth.sendRawTransaction(req.serializedTx, (err, hash) => {
-    if (err) {
-      data.msg = 'Error'
-      data.info = 'Transaction error!'
-      data.error = err.toString()
-      logger.error('serializedTx error')
-      logger.error(err.toString())
-      cb(data)
-    } else {
-      // cb(null, hash)
-      data.msg = 'Success'
-      data.info = hash
-    }
-    socket.emit(type, data)
-  })
-}
+//   web3.eth.sendRawTransaction(req.serializedTx, (err, hash) => {
+//     if (err) {
+//       data.msg = 'Error'
+//       data.info = 'Transaction error!'
+//       data.error = err.toString()
+//       logger.error('serializedTx error')
+//       logger.error(err.toString())
+//       cb(data)
+//     } else {
+//       // cb(null, hash)
+//       data.msg = 'Success'
+//       data.info = hash
+//     }
+//     socket.emit(type, data)
+//   })
+// }
 
 function lockOutHistory(socket, req, type) {
   let data = {
@@ -150,7 +150,7 @@ function lockin(socket, req, type) {
 }
 
 module.exports = {
-  sendTxn,
+  // sendTxn,
   lockOutHistory,
   lockin
 }

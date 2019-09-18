@@ -38,7 +38,7 @@ const StartSocket = require('./server/index')
 // dex self push
 const startServer = require(pathLink + '/server/dexapp/order/pushPublicData')
 if (config.isUseEnters.dexapp) {
-  startServer(io)
+  startServer.startServer(io)
 }
 
 // ex self push

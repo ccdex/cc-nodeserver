@@ -2,8 +2,8 @@ const path = require("path").resolve(".")
 const pathLink = path
 
 require(pathLink + '/server/public/methods/db.js')
-const web3 = require(pathLink + '/server/public/methods/web3')
-const $$ = require(pathLink + '/server/public/methods/methods')
+// const web3 = require(pathLink + '/server/public/methods/web3')
+// const $$ = require(pathLink + '/server/public/methods/methods')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Transfer')
 
 const mongoose = require('mongoose')
@@ -11,48 +11,48 @@ const Transfer = mongoose.model('Transfer')
 const _async = require('async')
 
 // router.post('/sendTxn', function (req, res) {
-function sendTxn(socket, req, type) {
-  // logger.info('send txn objext:')
-  // logger.info(req)
-  let data = { msg: 'error', info: '' }
-  let url = req.url ? req.url : $$.config.serverRPC
-  web3.setProvider(new web3.providers.HttpProvider(url))
+// function sendTxn(socket, req, type) {
+//   // logger.info('send txn objext:')
+//   // logger.info(req)
+//   let data = { msg: 'error', info: '' }
+//   let url = req.url ? req.url : $$.config.serverRPC
+//   web3.setProvider(new web3.providers.HttpProvider(url))
 
-  _async.waterfall([
-    (cb) => {
-      if (!req.serializedTx) {
-        if (req.hash) {
-          cb(null, req.hash)
-        } else {
-          data = { msg: 'Error', info: 'hash is null' }
-          cb(data)
-        }
-      } else {
-        web3.eth.sendRawTransaction(req.serializedTx, (err, hash) => {
-          if (err) {
-            data.msg = 'Error'
-            data.info = 'Transaction error!'
-            data.error = err.toString()
-            cb(data)
-          } else {
-            logger.info('create new hash:' + hash)
-            logger.info(hash)
-            cb(null, hash)
-          }
-        })
-      }
-    }
-  ], (err, result) => {
-    if (err) {
-      data = err
-    } else {
-      data.msg = 'Success'
-      data.info = result
-    }
-    socket.emit(type, data)
-  })
+//   _async.waterfall([
+//     (cb) => {
+//       if (!req.serializedTx) {
+//         if (req.hash) {
+//           cb(null, req.hash)
+//         } else {
+//           data = { msg: 'Error', info: 'hash is null' }
+//           cb(data)
+//         }
+//       } else {
+//         web3.eth.sendRawTransaction(req.serializedTx, (err, hash) => {
+//           if (err) {
+//             data.msg = 'Error'
+//             data.info = 'Transaction error!'
+//             data.error = err.toString()
+//             cb(data)
+//           } else {
+//             logger.info('create new hash:' + hash)
+//             logger.info(hash)
+//             cb(null, hash)
+//           }
+//         })
+//       }
+//     }
+//   ], (err, result) => {
+//     if (err) {
+//       data = err
+//     } else {
+//       data.msg = 'Success'
+//       data.info = result
+//     }
+//     socket.emit(type, data)
+//   })
 
-}
+// }
 
 // router.post('/history', function (req, res) {
 function history(socket, req, type) {
@@ -159,7 +159,7 @@ function receiveHistory(socket, req, type) {
 }
 
 module.exports = {
-  sendTxn,
+  // sendTxn,
   history,
   receiveHistory
 }

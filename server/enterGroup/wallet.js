@@ -14,9 +14,9 @@ function StartSocket (socket, io) {
   socket.on('createAccount', (req) => {
     Accounts.createAccount(socket, req, 'createAccount')
   })
-  socket.on('LiloSendTxn', (req) => {
-    Lilo.sendTxn(socket, req, 'LiloSendTxn')
-  })
+  // socket.on('LiloSendTxn', (req) => {
+  //   Lilo.sendTxn(socket, req, 'LiloSendTxn')
+  // })
   socket.on('lockInHistory', (req) => {
     Lockin.lockInHistory(socket, req, 'lockInHistory')
   })
@@ -27,9 +27,9 @@ function StartSocket (socket, io) {
     Lilo.lockin(socket, req, 'lockin')
   })
 
-  socket.on('TransferSendTxn', (req) => {
-    Transfer.sendTxn(socket, req, 'TransferSendTxn')
-  })
+  // socket.on('TransferSendTxn', (req) => {
+  //   Transfer.sendTxn(socket, req, 'TransferSendTxn')
+  // })
   socket.on('history', (req) => {
     Transfer.history(socket, req, 'history')
   })

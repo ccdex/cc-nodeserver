@@ -2,7 +2,7 @@ const path = require("path").resolve(".")
 const pathLink = path
 
 const Accounts = require(pathLink + '/server/public/accounts/index')
-const sendTxns = require(pathLink + '/server/public/other/sendTxns')
+// const sendTxns = require(pathLink + '/server/public/other/sendTxns')
 
 
 const AccountSet = require(pathLink + '/server/dexapp/accountSet/index')
@@ -17,7 +17,13 @@ const KlineChart = require(pathLink + '/server/dexapp/KLineChart/index')
 const AdverSys = require(pathLink + '/server/dexapp/banner/index')
 const NewsSys = require(pathLink + '/server/dexapp/news/index')
 
+const startServer = require(pathLink + '/server/dexapp/order/pushPublicData')
+
 function StartSocket (socket, io) {
+
+  socket.on('getInitData', (req) => {
+    startServer.getInitData(socket, req, 'getInitData')
+  })
 
   socket.on('setFollow', (req) => {
     AccountSet.setFollow(socket, req, 'setFollow')
@@ -57,9 +63,9 @@ function StartSocket (socket, io) {
   // })
 
 
-  socket.on('sendTxns', (req) => {
-    sendTxns.sendTxns(socket, req, 'sendTxns')
-  })
+  // socket.on('sendTxns', (req) => {
+  //   sendTxns.sendTxns(socket, req, 'sendTxns')
+  // })
 
   socket.on('adverInfo', (req) => {
     AdverSys.List(socket, req, 'adverInfo')

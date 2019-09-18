@@ -3,6 +3,7 @@ const pathLink = path
 
 require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
+const merge = require('merge')
 // const DexTxns = mongoose.model('DexTxns')
 const DexBlocks = mongoose.model('DexBlocks')
 const Ordercache = mongoose.model('Ordercache')
@@ -58,10 +59,10 @@ function PushPublicData (io, socket) {
         (callback) => {
           DexBlocks.aggregate([
             {$match: {trade: pair, timestamp: _timestamp}},
-            {$sort: {'number': 1}},
+            {$sort: {'number': -1, 'timestamp': -1}},
             {$group: {
               _id: '$trade',
-              openPrice: {$first: '$price'},
+              openPrice: {$last: '$price'},
               high24: {$max: '$price'},
               low24: {$min: '$price'},
               volume: {$sum: '$volumes'}
@@ -71,7 +72,7 @@ function PushPublicData (io, socket) {
           })
         },
         (results, callback) => {
-          DexBlocks.find({trade: pair}).sort({'number': -1}).limit(50).exec((err, res) => {
+          DexBlocks.find({trade: pair}).sort({'number': -1, 'timestamp': -1}).limit(50).exec((err, res) => {
             if (err) {
               logger.error(err.toString())
             } else {
@@ -246,9 +247,135 @@ function PushPublicData (io, socket) {
 }
 
 
+function getInitData(socket, req, type) {
+  let data = {
+		msg: 'Success',
+		info: '',
+		getTxnsPairs: []
+	}
+  let nowTime = Date.now()
+  let _timestamp = {
+    $gte: Number( $$.toTime( nowTime - (24 * 60 * 60 * 1000) ) ),
+    $lte: Number($$.toTime(nowTime)),
+  }
+  _async.waterfall([
+    (cb) => {
+      TxnsPairs.find({isShow: 1}, {trade: 1, isTop: 1, sortId: 1}).exec((err, results) => {
+        if (results && results.length > 0) {
+          cb(null, results)
+        } else {
+          if (err) {
+            cb(err)
+          } else {
+            cb('Trade is null!')
+          }
+        }
+      })
+    },
+    (res, cb) => {
+      // logger.info(res)
+      DexBlocks.aggregate([
+        {$match: {timestamp: _timestamp}},
+        {$sort: {'number': -1, 'timestamp': -1}},
+        {$group: {
+          _id: '$trade',
+          openPrice: {$last: '$price'},
+          closePrice: {$first: '$price'},
+          high24: {$max: '$price'},
+          low24: {$min: '$price'},
+          volume: {$sum: '$volumes'}
+        }},
+      ]).exec((err, results) => {
+        if (err) {
+          cb(err)
+        } else {
+          let arr = []
+          let str = JSON.stringify(results)
+          for (let obj of res) {
+            if (str.indexOf(obj.trade) !== -1) {
+              for (let obj1 of results) {
+                if (obj.trade === obj1._id) {
+                  let obj2 = merge(obj, obj1)
+                  arr.push(obj2)
+                  break
+                }
+              }
+            } else {
+              let obj2 = merge(obj, {
+                openPrice: 0,
+                closePrice: 0,
+                high24: 0,
+                low24: 0,
+                volume: 0,
+              })
+              arr.push(obj2)
+            }
+          }
+          // logger.info(arr)
+          cb(null, arr)
+        }
+      })
+    },
+    (results, cb) => {
+      DexBlocks.find({trade: req.trade}).sort({'number': -1, 'timestamp': -1}).limit(50).exec((err, res) => {
+        if (err) {
+          logger.error(err.toString())
+        } else {
+          data.info = res
+          if (results && results.length > 0) {
+            for (let obj of results) {
+              let closePrice = obj.closePrice ? Number(obj.closePrice) : 0,
+                  openPrice = obj.openPrice ? Number(obj.openPrice) : 0,
+                  pecent = 0
+              if (req.trade === obj.trade) {
+                closePrice = res[0] && res[0].price ? Number(res[0].price) : 0
+              }
+              if (closePrice === 0 || openPrice === 0) {
+                pecent = 0
+              } else {
+                pecent = closePrice / openPrice
+              }
+              data.getTxnsPairs.push({
+                change: Number(pecent) * 100,
+                volume: obj.volume,
+                price: closePrice,
+                pair: obj.trade,
+                high24: obj.high24,
+                low24: obj.low24,
+                isTop: obj.isTop,
+                isShow: obj.isShow,
+              })
+            }
+          } else {
+            data.getTxnsPairs.push({
+              change: 0,
+              volume: 0,
+              price: 0,
+              pair: req.trade,
+              high24: 0,
+              low24: 0,
+              isTop: 1,
+              isShow: 1,
+            })
+          }
+        }
+        cb(null, res)
+      })
+    }
+  ], (err) => {
+    if (err) {
+      logger.info(err.toString())
+    }
+    socket.emit(type, data)
+  })
+}
+
 function startServer (io, socket) {
   PushPublicData(io, socket)
   // pendingTxns(io, socket)
 }
 
-module.exports = startServer
+module.exports = {
+  startServer,
+  getInitData
+}
