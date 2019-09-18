@@ -49,7 +49,7 @@ function PushPublicData (io, socket) {
   let pushMethods = (pairArr) => {
     _async.eachSeries(pairArr, (pair, cb) => {
 
-      let tradeData = pair
+      let tradeData = JSON.parse(JSON.stringify(pair))
       pair = tradeData.trade
       // logger.info(pair)
       if (!pair) {
@@ -63,7 +63,6 @@ function PushPublicData (io, socket) {
             {$group: {
               _id: '$trade',
               openPrice: {$last: '$price'},
-              closePrice: {$first: '$price'},
               high24: {$max: '$price'},
               low24: {$min: '$price'},
               volume: {$sum: '$volumes'}
@@ -73,29 +72,16 @@ function PushPublicData (io, socket) {
           })
         },
         (results, callback) => {
-          DexBlocks.find({trade: pair, timestamp: {$gt: $$.toTime(oldTime),$lte: $$.toTime(nowTime)}}).sort({'number': -1, 'timestamp': -1, 'squence': -1}).exec((err, res) => {
+          DexBlocks.find({trade: pair}).sort({'number': -1, 'timestamp': -1, 'squence': -1}).limit(50).exec((err, res) => {
             if (err) {
               logger.error(err.toString())
             } else {
               data.endTxns[pair] = res
 
               if (results && results.length > 0) {
-                let closePrice = results[0].closePrice ? Number(results[0].closePrice) : 0,
+                let closePrice = res[0] && res[0].price ? Number(res[0].price) : 0,
                     openPrice = results[0].openPrice ? Number(results[0].openPrice) : 0,
                     pecent = 0
-                if (res.length > 0) {
-                  closePrice = Number(res[0].price)
-                  let _res = res.sort($$.bigToSmallSort('price'))
-                  data.KLines[pair] = [{
-                    high: Number(_res[0].price),
-                    low: Number(_res[res.length - 1].price),
-                    open: Number(res[res.length - 1].price),
-                    close: Number(res[0].price),
-                    volume: $$.toSum(res, 'volumes'),
-                    timestamp: Number(res[0].timestamp),
-                    pair: pair
-                  }]
-                }
                 if (closePrice === 0 || openPrice === 0) {
                   pecent = 0
                 } else {
@@ -128,6 +114,36 @@ function PushPublicData (io, socket) {
             callback(null, res)
           })
         },
+        (res, callback) => {
+          DexBlocks.aggregate([
+            {$match: {trade: pair, timestamp: {$gt: $$.toTime(oldTime),$lte: $$.toTime(nowTime)}}},
+            {$sort: {'timestamp': -1} },
+            {$group: {
+              _id: '$number',
+              high: {$max: '$price'},
+              low: {$min: '$price'},
+              open: {$last: '$price'},
+              close: {$first: '$price'},
+              volume: {$sum: 1} ,
+              timestamp: {$first: '$timestamp'},
+              pair: {$first: '$trade'}
+            } },
+            {$sort: {'timestamp': -1} },
+            {$limit: 1}
+          ]).exec((err, results) => {
+            if (err) {
+              logger.error(err.toString())
+            } else {
+              // logger.info(results)
+              if (res && res.length > 0 && results.length > 0) {
+                results[0].close = res[0].price
+              }
+              // logger.info(results)
+              data.KLines[pair] = results
+            }
+            callback(null, pair)
+          })
+        }
       ], () => {
         cb(null, pair)
       })
@@ -138,6 +154,8 @@ function PushPublicData (io, socket) {
         io.sockets.in(_pair + chartNameObj.KLines).emit(_pair + chartNameObj.KLines, (data.KLines[_pair] ? data.KLines[_pair] : []))
         io.sockets.in(_pair + chartNameObj.endTxns).emit(_pair + chartNameObj.endTxns, (data.endTxns[_pair] ? data.endTxns[_pair] : []))
       }
+      // logger.info(chartNameObj.getTxnsPairs)
+      // logger.info(data.getTxnsPairs)
       io.sockets.in(chartNameObj.getTxnsPairs).emit(chartNameObj.getTxnsPairs, data.getTxnsPairs)
       oldTime = nowTime
     })
@@ -231,17 +249,122 @@ function PushPublicData (io, socket) {
 
 function getInitData(socket, req, type) {
   let data = {
-		msg: 'Error',
-		info: ''
+		msg: 'Success',
+		info: '',
+		getTxnsPairs: []
 	}
-  
-  DexBlocks.find({trade: req.trade}).sort({'number': -1, 'timestamp': -1}).limit(50).exec((err, res) => {
+  let nowTime = Date.now()
+  let _timestamp = {
+    $gte: Number( $$.toTime( nowTime - (24 * 60 * 60 * 1000) ) ),
+    $lte: Number($$.toTime(nowTime)),
+  }
+  _async.waterfall([
+    (cb) => {
+      TxnsPairs.find({isShow: 1}, {trade: 1, isTop: 1, sortId: 1}).exec((err, results) => {
+        if (results && results.length > 0) {
+          cb(null, results)
+        } else {
+          if (err) {
+            cb(err)
+          } else {
+            cb('Trade is null!')
+          }
+        }
+      })
+    },
+    (res, cb) => {
+      // logger.info(res)
+      DexBlocks.aggregate([
+        {$match: {timestamp: _timestamp}},
+        {$sort: {'number': -1, 'timestamp': -1}},
+        {$group: {
+          _id: '$trade',
+          openPrice: {$last: '$price'},
+          closePrice: {$first: '$price'},
+          high24: {$max: '$price'},
+          low24: {$min: '$price'},
+          volume: {$sum: '$volumes'}
+        }},
+      ]).exec((err, results) => {
+        if (err) {
+          cb(err)
+        } else {
+          let arr = []
+          let str = JSON.stringify(results)
+          for (let obj of res) {
+            if (str.indexOf(obj.trade) !== -1) {
+              for (let obj1 of results) {
+                if (obj.trade === obj1._id) {
+                  let obj2 = merge(obj, obj1)
+                  arr.push(obj2)
+                  break
+                }
+              }
+            } else {
+              let obj2 = merge(obj, {
+                openPrice: 0,
+                closePrice: 0,
+                high24: 0,
+                low24: 0,
+                volume: 0,
+              })
+              arr.push(obj2)
+            }
+          }
+          // logger.info(arr)
+          cb(null, arr)
+        }
+      })
+    },
+    (results, cb) => {
+      DexBlocks.find({trade: req.trade}).sort({'number': -1, 'timestamp': -1}).limit(50).exec((err, res) => {
+        if (err) {
+          logger.error(err.toString())
+        } else {
+          data.info = res
+          if (results && results.length > 0) {
+            for (let obj of results) {
+              let closePrice = obj.closePrice ? Number(obj.closePrice) : 0,
+                  openPrice = obj.openPrice ? Number(obj.openPrice) : 0,
+                  pecent = 0
+              if (req.trade === obj.trade) {
+                closePrice = res[0] && res[0].price ? Number(res[0].price) : 0
+              }
+              if (closePrice === 0 || openPrice === 0) {
+                pecent = 0
+              } else {
+                pecent = closePrice / openPrice
+              }
+              data.getTxnsPairs.push({
+                change: Number(pecent) * 100,
+                volume: obj.volume,
+                price: closePrice,
+                pair: obj.trade,
+                high24: obj.high24,
+                low24: obj.low24,
+                isTop: obj.isTop,
+                isShow: obj.isShow,
+              })
+            }
+          } else {
+            data.getTxnsPairs.push({
+              change: 0,
+              volume: 0,
+              price: 0,
+              pair: req.trade,
+              high24: 0,
+              low24: 0,
+              isTop: 1,
+              isShow: 1,
+            })
+          }
+        }
+        cb(null, res)
+      })
+    }
+  ], (err) => {
     if (err) {
-      data.error = err.toString()
-      logger.error(err.toString())
-    } else {
-      data.msg = 'Success'
-      data.info = res
+      logger.info(err.toString())
     }
     socket.emit(type, data)
   })

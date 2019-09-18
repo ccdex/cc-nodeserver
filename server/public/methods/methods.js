@@ -79,6 +79,36 @@ function cutCoin (coin) {
   }
 }
 
+function toSum(arr, param) {
+  let num = 0
+  for (let obj of arr) {
+    num += Number(obj[param])
+  }
+  return num
+}
+
+function smallToBigSort() {
+  return (a, b) => {
+    for (let obj in arguments) {
+      if (Number(a[arguments[obj]]) > Number(b[arguments[obj]])) {
+        return 1
+      }
+    }
+    return -1
+  }
+}
+
+function bigToSmallSort() {
+  return (a, b) => {
+    for (let obj in arguments) {
+      if (Number(a[arguments[obj]]) > Number(b[arguments[obj]])) {
+        return -1
+      }
+    }
+    return 1
+  }
+}
+
 module.exports = {
   coinInfo: coinInfo,
   config: configData,
@@ -87,5 +117,8 @@ module.exports = {
   toTime,
   fromWei,
   toWei,
-  cutCoin
+  cutCoin,
+  toSum,
+  smallToBigSort,
+  bigToSmallSort,
 }

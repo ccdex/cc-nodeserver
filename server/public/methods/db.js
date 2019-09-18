@@ -131,7 +131,8 @@ const DexBlocks = new Schema({
   orders: {type: Number},
   price: {type: Number},
   timestamp: {type: Number},
-  volumes: {type: Number}
+  volumes: {type: Number},
+  squence: {type: Number},
 }, {collection: "DexBlocks"})
 
 const DexTxns = new Schema({
@@ -228,7 +229,7 @@ Lockins.index({timestamp: -1}, {background: 1})
 Transfer.index({timestamp: -1}, {background: 1})
 Accounts.index({balance: -1}, {background: 1})
 Ordercache.index({price: 1}, {background: 1})
-DexBlocks.index({number: -1, timestamp: -1}, {background: 1})
+DexBlocks.index({number: -1, timestamp: -1, squence: -1}, {background: 1})
 DexTxns.index({number: -1, timestamp: -1}, {background: 1})
 Orders.index({timestamp: -1}, {background: 1})
 TxnsPairs.index({sortId: 1}, {background: 1})
