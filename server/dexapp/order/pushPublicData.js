@@ -138,6 +138,7 @@ function PushPublicData (io, socket) {
         io.sockets.in(_pair + chartNameObj.KLines).emit(_pair + chartNameObj.KLines, (data.KLines[_pair] ? data.KLines[_pair] : []))
         io.sockets.in(_pair + chartNameObj.endTxns).emit(_pair + chartNameObj.endTxns, (data.endTxns[_pair] ? data.endTxns[_pair] : []))
       }
+      // logger.info(data.getTxnsPairs)
       io.sockets.in(chartNameObj.getTxnsPairs).emit(chartNameObj.getTxnsPairs, data.getTxnsPairs)
       oldTime = nowTime
     })

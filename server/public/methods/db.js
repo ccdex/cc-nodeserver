@@ -53,7 +53,7 @@ const DcrmAccount = new Schema({
 
 const Transaction = new Schema({
   hash: {type: String},
-  hashArray: {type: Array},
+  hashLen: {type: Number},
   nonce: {type: Number},
   blockHash: {type: String},
   blockNumber: {type: Number},

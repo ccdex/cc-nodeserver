@@ -9,7 +9,8 @@ const async = require('async')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('PushBlockInfo')
 const $$ = require(pathLink + '/server/public/methods/methods')
 
-const pushTimeout = 5 * 1000
+const pushTimeout = 3 * 1000
+const limitNum = 15
 let cacheData = {}
 
 function PushBlockInfo (io) {
@@ -21,7 +22,7 @@ function PushBlockInfo (io) {
   }
   async.waterfall([
 		(cb) => {
-			Transaction.find().sort({blockNumber: -1, timestamp: -1}).limit(50).exec((err, result) => {
+			Transaction.find().sort({blockNumber: -1, timestamp: -1}).limit(limitNum).exec((err, result) => {
         if (err) {
 					logger.error(err.toString())
 					data.txnsError = err.toString()
@@ -44,7 +45,7 @@ function PushBlockInfo (io) {
       })
     },
 		(res, cb) => {
-			Block.find().sort({number: -1, timestamp: -1}).limit(50).exec((err, result) => {
+			Block.find().sort({number: -1, timestamp: -1}).limit(limitNum).exec((err, result) => {
 				if (err) {
           logger.error(err.toString())
 					data.blocksError = err.toString()
@@ -60,6 +61,7 @@ function PushBlockInfo (io) {
 		}
 	], () => {
     cacheData = data
+    // io.sockets.in('pushBlocksAndTxns').emit('pushBlocksAndTxns', JSON.stringify(data))
     io.sockets.in('pushBlocksAndTxns').emit('pushBlocksAndTxns', data)
     // logger.info(data)
     setTimeout(() => {
