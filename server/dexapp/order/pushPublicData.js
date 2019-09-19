@@ -86,11 +86,12 @@ function PushPublicData (io, socket) {
                 if (res.length > 0) {
                   closePrice = Number(res[0].price)
                   let _res = res.sort($$.bigToSmallSort('price'))
+                  // logger.info(res)
                   data.KLines[pair] = [{
                     high: Number(_res[0].price),
                     low: Number(_res[res.length - 1].price),
                     open: Number(res[res.length - 1].price),
-                    close: Number(res[0].price),
+                    close: Number(closePrice),
                     volume: $$.toSum(res, 'volumes'),
                     timestamp: Number(res[0].timestamp),
                     pair: pair
