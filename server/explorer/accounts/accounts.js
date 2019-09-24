@@ -25,7 +25,7 @@ function TopAccountList (socket, req, type) {
 	logger.info(params)	
 	async.waterfall([
 		(cb) => {
-			Accounts.find({'balance': {'$gte': params.balance}}).lean(true).sort({"balance": -1}).countDocuments((err, result) => {
+			Accounts.find({'balance': {'$gte': params.balance}}).countDocuments((err, result) => {
 				if (!err) {
 					data.msg = 'Success'
 					data.total = result
@@ -56,8 +56,24 @@ function TopAccountList (socket, req, type) {
 			})
 		},
 		(data, cb) => {
-			Accounts.find({'balance': {'$gte': params.balance}}).lean(true).sort({"balance": -1}).skip(params.skip).limit(Number(req.pageSize)).exec((err,result) => {
+			// Accounts.find({'balance': {'$gte': params.balance}}).lean(true).sort({"balance": -1}).skip(params.skip).limit(Number(req.pageSize)).exec((err,result) => {
+			Accounts.aggregate([
+				// {
+				// 	$lookup: {
+				// 		from: "Transaction",
+				// 		localField: "address",
+				// 		foreignField: "from",
+				// 		as: "arr",
+				// 	}
+				// },
+				{$sort: {"balance": -1}},
+				{$match: {'balance': {'$gte': params.balance}}},
+				// {$group: { _id: null, 'total': {'$divide': ['$balance', 5]} } },
+				{$skip: params.skip},
+				{$limit: Number(req.pageSize)}
+			]).exec((err, result) => {
 				if (!err) {
+					// logger.info(result)
 					data.msg = 'Success'
 					for (let i = 0; i < result.length; i++) {
 						result[i].percentage = ((Number(result[i].balance) / Number(data.balance)) * 100).toFixed(2) + '%'
@@ -73,6 +89,7 @@ function TopAccountList (socket, req, type) {
 		}
 	], (err, data) => {
 		if (err) {
+			logger.error(err)
 			socket.emit(type, err)
 		} else {
 			socket.emit(type, data)

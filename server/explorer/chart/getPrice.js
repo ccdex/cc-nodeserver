@@ -7,7 +7,7 @@ const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Ge
 let mainCoinDollar = ''
 
 function getPrice () {
-  const https = require('https')
+  // const https = require('https')
 	var url = 'https://graphs2.coinmarketcap.com/currencies/fusion/' //输入任何网址都可以
 
 	// logger.info('-----------------------')
@@ -22,7 +22,7 @@ function getPrice () {
 			mainCoinDollar = html
 			setTimeout(() => {
 				getPrice()
-			}, 1000 * 60 * 60 * 2)
+			}, 1000 * 60 * 60 * 8)
 		})
 	}).on('error',function(){
 		logger.error('获取资源出错！')

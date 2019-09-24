@@ -17,7 +17,7 @@ const ChartsPrice = require(pathLink + '/server/explorer/chart/getPrice')
 const ChartsTxns = require(pathLink + '/server/explorer/chart/txnsChart')
 const ChartsAccount = require(pathLink + '/server/explorer/chart/accountChart')
 
-const Other = require(pathLink + '/server/public/other/other')
+const getAvgData = require(pathLink + '/server/explorer/chart/getAvgData')
 
 // const sendTxns = require(pathLink + '/server/public/other/sendTxns')
 
@@ -69,7 +69,7 @@ function StartSocket (socket, io) {
 
 
     socket.on('getAvgData', (req) => {
-        Other.Avg(socket, req, 'getAvgData')
+        getAvgData.Avg(socket, req, 'getAvgData')
     })
     
     socket.on('blockNum', (req) => {
