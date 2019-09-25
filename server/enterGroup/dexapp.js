@@ -56,16 +56,8 @@ function StartSocket (socket, io) {
   // })
 
   socket.on('KlineChart', (req) => {
-    KlineChart.KLineChart('KlineChart', io, socket, req)
+    KlineChart.KLineChart('KlineChart', socket, req)
   })
-  // socket.on('getBestPrice', (req) => {
-  //   KlineChart.GetBestPrice(socket, req, 'getBestPrice')
-  // })
-
-
-  // socket.on('sendTxns', (req) => {
-  //   sendTxns.sendTxns(socket, req, 'sendTxns')
-  // })
 
   socket.on('adverInfo', (req) => {
     AdverSys.List(socket, req, 'adverInfo')

@@ -257,11 +257,53 @@ mongoose.model('RoleSys', RoleSys)
 
 
 mongoose.Promise = global.Promise
+
 logger.info("db.js")
 logger.info($$.config.mongoDBurl)
+
+// const options = { 
+//   server: { 
+//       socketOptions: { 
+//           keepAlive: 1, 
+//           connectTimeoutMS: 30000 
+//       } ,
+//       reconnectTries:30,
+//       reconnectInterval:3000
+//   }, 
+//   replset: { 
+//       socketOptions: { 
+//           keepAlive: 1, 
+//           connectTimeoutMS: 30000 
+//       } 
+//   } 
+// }
 mongoose.connect(process.env.MONGO_URI || $$.config.mongoDBurl, {
   useCreateIndex: true,
   useNewUrlParser: true
+})
+
+/**
+ * 连接
+ */
+// mongoose.connect($$.config.mongoDBurl, options)
+/**
+  * 连接成功
+  */
+mongoose.connection.on('connected', () => {
+  logger.info("db.js")
+  logger.info('Mongoose connection success: ' + $$.config.mongoDBurl)
+})
+/**
+ * 连接异常
+ */
+mongoose.connection.on('error', err => {
+  logger.error('Mongoose connection error: ' + err.toString())
+})
+/**
+ * 连接断开
+ */
+mongoose.connection.on('disconnected', () => {
+  logger.info('Mongoose connection disconnected')
 })
 
 
