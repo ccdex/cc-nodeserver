@@ -35,6 +35,7 @@ const Accounts = new Schema({
   publicKey: {type: String},
   followPair: {type: String},
   isConfirm: {type: Number},
+  txns: {type: Number},
   balance: {type: Number, default: 0}
 }, {collection: 'Accounts'})
 

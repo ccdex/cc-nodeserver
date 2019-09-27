@@ -5,6 +5,7 @@ require(pathLink + '/server/public/methods/db.js')
 const mongoose = require('mongoose')
 // const DexTxns = mongoose.model('DexTxns')
 const DexBlocks = mongoose.model('DexBlocks')
+const moment = require('moment')
 // const DexTxns = mongoose.model('DexTxns')
 // const web3 = require('../methods/web3.js')
 // const _async = require('async')
@@ -36,9 +37,9 @@ function KLineChart (type, socket, req) {
       // _id: '$height',
       _id: {
         $subtract: [
-          {$subtract: ["$timestamp", new Date('1970-01-01') / 1000]},
+          {$subtract: ["$timestamp", new Date(moment('1970-01-01')) / 1000]},
           {$mod: [
-            {$subtract: ["$timestamp", new Date('1970-01-01') / 1000]}, req.intervalView
+            {$subtract: ["$timestamp", new Date(moment('1970-01-01')) / 1000]}, req.intervalView
           ]}
         ]
       },

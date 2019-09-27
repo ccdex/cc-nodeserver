@@ -7,6 +7,7 @@ let Transaction = mongoose.model( 'Transaction' )
 const Block = mongoose.model( 'Block' )
 const $$ = require(pathLink + '/server/public/methods/methods')
 const async = require('async')
+const moment = require('moment')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('GetAvgData')
 
 let cacheData = {
@@ -16,10 +17,6 @@ let cacheData = {
 let cacheTime = Date.now()
 
 function getAvgData(socket, req, type) {
-	let data = {
-		txns: [],
-		blocks: []
-	}
 	if (!cacheData.blockError && !cacheData.txnsError && (cacheData.txns.length > 0 || cacheData.blocks.length > 0)) {
 		let _s = Date.parse($$.getBeforeDate(0) + ' ' + '00:00:00')
 		let _e = Date.parse($$.getBeforeDate(0) + ' ' + '23:59:59')
@@ -28,61 +25,76 @@ function getAvgData(socket, req, type) {
 			return
 		}
 	}
-	let dateArr = []
-	for (let i = 1; i <= 7; i++) {
-		let _s = Date.parse($$.getBeforeDate(i) + ' ' + '00:00:00') / 1000
-		let _e = Date.parse($$.getBeforeDate(i) + ' ' + '23:59:59') / 1000
-		dateArr.push({
-			timestamp: {
-				$gt: _s,
-				$lte: _e
-			}
-		})
+	let data = {
+		txns: [],
+		blocks: []
 	}
-	async.eachSeries(dateArr, (params, callback) => {
-		// logger.info(params)
-		async.waterfall([
-			(cb) => {
-				Block.aggregate([
-					{$sort: {number: -1, timestamp: -1}},
-					{$match: params},
-					{$group: {
-						_id: null,
-						count: {$sum: 1},
-						startTime: {$last: '$timestamp'},
-						endTime: {$first: '$timestamp'},
-						timestamp: {$last: '$timestamp'}
-					}}
-				]).exec((err, result) => {
-					if (err) {
-						data.blockError = err.toString()
-					} else {
-						data.blocks.push(...result)
-					}
-					cb(null, result)
-				})
-			},
-			(res, cb) => {
-				Transaction.find(params).sort({blockNumber: -1, timestamp: -1}).countDocuments((err, result) => {
-					if (err) {
-						data.txnsError = err.toString()
-					} else {
-						data.txns.push({count: result, timestamp: params.timestamp.$gt})
-					}
-					cb(null, result)
-				})
-			}
-		], () => {
-			callback(null, params)
-		})
-	}, () => {
-		// logger.info(data)
+	let intervalView = 60 * 60 * 24
+	let params = {
+		timestamp: {
+			$gt: Date.parse(moment($$.getBeforeDate(7))) / 1000,
+			$lte: Date.parse(moment($$.getBeforeDate(0))) / 1000
+		}
+	}
+	async.waterfall([
+		(cb) => {
+			Block.aggregate([
+				{$sort: {number: -1, timestamp: -1}},
+				{$match: params},
+				{$group: {
+					_id: {
+						$subtract: [
+							{$subtract: ["$timestamp", new Date(moment('1970-01-01')) / 1000]},
+							{$mod: [
+								{$subtract: ["$timestamp", new Date(moment('1970-01-01')) / 1000]}, intervalView
+							]}
+						]
+					},
+					count: {$sum: 1},
+					startTime: {$last: '$timestamp'},
+					endTime: {$first: '$timestamp'},
+					timestamp: {$last: '$timestamp'}
+				}}
+			]).exec((err, result) => {
+				if (err) {
+					data.blockError = err.toString()
+				} else {
+					data.blocks = result
+				}
+				cb(null, result)
+			})
+		},
+		(res, cb) => {
+			Transaction.aggregate([
+				{$sort: {blockNumber: -1, timestamp: -1}},
+				{$match: params},
+				{$group: {
+					_id: {
+						$subtract: [
+							{$subtract: ["$timestamp", new Date(moment('1970-01-01')) / 1000]},
+							{$mod: [
+								{$subtract: ["$timestamp", new Date(moment('1970-01-01')) / 1000]}, intervalView
+							]}
+						]
+					},
+					count: {$sum: 1},
+					timestamp: {$last: '$timestamp'}
+				}}
+			]).exec((err, result) => {
+				if (err) {
+					data.txnsError = err.toString()
+				} else {
+					data.txns = result
+				}
+				cb(null, result)
+			})
+		}
+	], () => {
 		cacheData = data
 		cacheTime = Date.now()
 		socket.emit(type, data)
 	})
 }
-
 module.exports = {
   Avg : getAvgData
 }
