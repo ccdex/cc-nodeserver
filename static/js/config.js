@@ -1,3 +1,5 @@
+const path = require("path").resolve(".")
+const pathLink = path
 const httpPort = 8100
 
 let publicSet = {
@@ -19,19 +21,20 @@ let publicSet = {
   },
   github: {
     url: 'https://github.com/login/oauth/access_token',
-    client_id: 'ea35a2738ab45dffe14d',
-    client_secret: '7194f23286ed04c4a705851138956319d39540dc'
-  }
+    client_id: 'e56c28cd332f0fe998b4',
+    client_secret: 'c4a1852ace5693ba16439ad9d67e330910e729ba'
+  },
+  uploadFileUrl: pathLink + '/uploadFile'
 }
 // const rpc = '10.192.32.40'
 // const rpc = '10.192.32.19'
 // const rpc = '207.180.232.138'
-const rpc = '18.216.188.149'
+// const rpc = '18.216.188.149'
 // const port = '8774'
 // const port = '9909'
-publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/ccdex'
+// publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/ccdex'
 // publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/fusion'
 // publicSet.mongoDBurl = 'mongodb://localhost:27017/fusion'
-// publicSet.appURL = 'http://localhost:8100'
+publicSet.appURL = 'http://localhost:8100'
 // publicSet.serverRPC = 'http://' + rpc + ':' + port
 module.exports = publicSet
