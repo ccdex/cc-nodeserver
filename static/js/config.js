@@ -24,7 +24,11 @@ let publicSet = {
     client_id: 'e56c28cd332f0fe998b4',
     client_secret: 'c4a1852ace5693ba16439ad9d67e330910e729ba'
   },
-  uploadFileUrl: pathLink + '/uploadFile'
+  uploadFileUrl: pathLink + '/uploadFile',
+  file: {
+    upload: 'C:/Program Files/nginx-1.16.0/html/uploadFile/',
+    download: 'http://localhost:8098/uploadFile/'
+  }
 }
 // const rpc = '10.192.32.40'
 // const rpc = '10.192.32.19'
@@ -36,5 +40,6 @@ let publicSet = {
 // publicSet.mongoDBurl = 'mongodb://' + rpc + ':27017/fusion'
 // publicSet.mongoDBurl = 'mongodb://localhost:27017/fusion'
 publicSet.appURL = 'http://localhost:8100'
+// publicSet.uploadFileUrl = 'C:/Program Files/nginx-1.16.0/html/uploadFileC:/Program Files/nginx-1.16.0/html/uploadFile'
 // publicSet.serverRPC = 'http://' + rpc + ':' + port
 module.exports = publicSet

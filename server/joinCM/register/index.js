@@ -143,8 +143,13 @@ function uploadFile (type, socket, req) {
 function removeFile (type, socket, req) {
   // logger.info(fs.existsSync(req))
   try {
-    if (fs.existsSync(req)) {
-      fs.unlinkSync(req)
+    let fileUrl = $$.config.file.upload + req.substr(req.lastIndexOf('/') + 1)
+    // logger.info(req)
+    // logger.info(fileUrl)
+    // logger.info(req.lastIndexOf('/'))
+
+    if (fs.existsSync(fileUrl)) {
+      fs.unlinkSync(fileUrl)
       socket.emit(type, {
         msg: 'Success',
         tip: 'Remove file success!'

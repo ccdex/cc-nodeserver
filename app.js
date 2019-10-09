@@ -26,7 +26,7 @@ app.use(express.static(require('path').join(__dirname, 'public')))
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
 
-const objMulter = multer({dest: config.uploadFileUrl})
+const objMulter = multer({dest: config.file.upload})
 app.use(objMulter.any())
 
 const httpServer = http.createServer(app).listen(httpPort)
