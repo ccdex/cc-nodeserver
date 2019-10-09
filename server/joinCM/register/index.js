@@ -62,7 +62,7 @@ function joinCM (type, socket, req) {
     msg: 'Error',
     info: ''
   }
-  logger.info(req)
+  // logger.info(req)
   if (
     !req.gitID ||
     !req.wx ||
@@ -87,7 +87,7 @@ function joinCM (type, socket, req) {
     fileUrl: req.fileUrl,
     ref: req.ref.replace(/\s/g, ''),
     address: req.address.replace(/\s/g, ''),
-    createTime: Date.now()
+    timestamp: Date.now()
   }
   // logger.info(params)
   DevUser.update({gitID: req.gitID}, {'$set': params}, {upsert: true}).exec((err, res) => {
@@ -110,7 +110,7 @@ function findDevUser (type, socket, req) {
     if (err) {
       data.error = err.toString()
     } else {
-      logger.info(res)
+      // logger.info(res)
       if (res && res.gitID) {
         data.msg = 'Success'
         data.info = res
@@ -123,7 +123,7 @@ function findDevUser (type, socket, req) {
 }
 
 function uploadFile (type, socket, req) {
-  logger.info(req)
+  // logger.info(req)
   socket.emit(type, req)
   // let  form = new formidable.IncomingForm()
   // form.uploadDir = req.name

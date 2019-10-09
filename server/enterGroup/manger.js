@@ -6,6 +6,7 @@ const NewsSys = require(pathLink + '/server/manger/newsSys/index')
 const PairsSys = require(pathLink + '/server/manger/pairsSys/index')
 const Users = require(pathLink + '/server/manger/user/index')
 const RoleSys = require(pathLink + '/server/manger/roleSys/index')
+const CmSys = require(pathLink + '/server/manger/CmSys/index')
 
 function StartSocket (socket, io) {
   // 广告系统
@@ -78,6 +79,19 @@ function StartSocket (socket, io) {
   })
   socket.on('roleList', (req) => {
     RoleSys.List(socket, req, 'roleList')
+  })
+  // 社区管理
+  socket.on('CmAdd', (req) => {
+    CmSys.Add(socket, req, 'CmAdd')
+  })
+  socket.on('CmDele', (req) => {
+    CmSys.Dele(socket, req, 'CmDele')
+  })
+  socket.on('CmEdit', (req) => {
+    CmSys.Edit(socket, req, 'CmEdit')
+  })
+  socket.on('CmList', (req) => {
+    CmSys.List(socket, req, 'CmList')
   })
 }
 

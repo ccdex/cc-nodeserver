@@ -2,6 +2,7 @@
 .clinic
 node_modules/
 dist/
+uploadFile/
 /dist/*
 logs/
 server/keys/

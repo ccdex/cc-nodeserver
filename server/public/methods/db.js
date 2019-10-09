@@ -215,15 +215,16 @@ const RoleSys = new Schema({
   createTime: {type: Number, required: true},
   updateTime: {type: Number, required: true},
   type: {type: Number, unique: true},
-  sysAdver: {type: Object, required: true},
-  sysNews: {type: Object, required: true},
-  sysPairs: {type: Object, required: true},
-  sysUsers: {type: Object, required: true},
-  sysRole: {type: Object, required: true},
+  adminLimit: {type: Object},
+  // sysAdver: {type: Object, required: true},
+  // sysNews: {type: Object, required: true},
+  // sysPairs: {type: Object, required: true},
+  // sysUsers: {type: Object, required: true},
+  // sysRole: {type: Object, required: true},
 }, {collection: 'RoleSys'})
 
 const DevUser = new Schema({
-  gitID: {type: String},
+  gitID: {type: String, unique: true},
   wx: {type: String},
   email: {type: String},
   work: {type: String},
@@ -232,12 +233,12 @@ const DevUser = new Schema({
   fileUrl: {type: Array},
   ref: {type: String},
   address: {type: String},
-  createTime: {type: Number},
+  timestamp: {type: Number},
 }, {collection: 'DevUsers'})
 
 const CodeImg = new Schema({
   img: {type: String},
-  createTime: {type: Number},
+  timestamp: {type: Number},
 })
 
 
@@ -257,8 +258,8 @@ AdverSys.index({sortId: 1, timestamp: -1}, {background: 1})
 NewsSys.index({sortId: 1, updateTime: -1}, {background: 1})
 Users.index({role: 1, updateTime: -1}, {background: 1})
 RoleSys.index({type: 1, updateTime: -1}, {background: 1})
-DevUser.index({createTime: -1}, {background: 1})
-CodeImg.index({createTime: -1}, {background: 1})
+DevUser.index({timestamp: -1}, {background: 1})
+CodeImg.index({timestamp: -1}, {background: 1})
 
 
 mongoose.model('Block', Block)

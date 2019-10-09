@@ -82,21 +82,24 @@ function roleEdit(socket, req, type) {
     if (req.type) {
       params.type = req.type
     }
-    if (req.sysAdver) {
-      params.sysAdver = req.sysAdver
+    if (req.adminLimit) {
+      params.adminLimit = req.adminLimit
     }
-    if (req.sysNews) {
-      params.sysNews = req.sysNews
-    }
-    if (req.sysPairs) {
-      params.sysPairs = req.sysPairs
-    }
-    if (req.sysUsers) {
-      params.sysUsers = req.sysUsers
-    }
-    if (req.sysRole) {
-      params.sysRole = req.sysRole
-    }
+    // if (req.sysAdver) {
+    //   params.sysAdver = req.sysAdver
+    // }
+    // if (req.sysNews) {
+    //   params.sysNews = req.sysNews
+    // }
+    // if (req.sysPairs) {
+    //   params.sysPairs = req.sysPairs
+    // }
+    // if (req.sysUsers) {
+    //   params.sysUsers = req.sysUsers
+    // }
+    // if (req.sysRole) {
+    //   params.sysRole = req.sysRole
+    // }
     params.updateTime = Date.now()
   }
   RoleSys.updateOne({_id: req.id}, params).exec((err, res) => {
@@ -122,11 +125,12 @@ function roleAdd(socket, req, type) {
     type: req.type,
     createTime: Date.now(),
     updateTime: Date.now(),
-    sysAdver: req.sysAdver,
-    sysNews: req.sysAdver,
-    sysPairs: req.sysAdver,
-    sysUsers: req.sysAdver,
-    sysRole: req.sysAdver,
+    adminLimit: req.adminLimit
+    // sysAdver: req.sysAdver,
+    // sysNews: req.sysAdver,
+    // sysPairs: req.sysAdver,
+    // sysUsers: req.sysAdver,
+    // sysRole: req.sysAdver,
   })
   roleSys.save((err, res) => {
     if (err) {
