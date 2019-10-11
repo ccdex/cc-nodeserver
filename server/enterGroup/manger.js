@@ -8,6 +8,8 @@ const Users = require(pathLink + '/server/manger/user/index')
 const RoleSys = require(pathLink + '/server/manger/roleSys/index')
 const CmSys = require(pathLink + '/server/manger/CmSys/index')
 
+const github = require(pathLink + '/server/manger/CmSys/github')
+
 function StartSocket (socket, io) {
   // 广告系统
   socket.on('adverAdd', (req) => {
@@ -92,6 +94,9 @@ function StartSocket (socket, io) {
   })
   socket.on('CmList', (req) => {
     CmSys.List(socket, req, 'CmList')
+  })
+  socket.on('goInvited', (req) => {
+    github.goInvited(socket, req, 'goInvited')
   })
 }
 

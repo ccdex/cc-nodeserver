@@ -58,19 +58,6 @@ function getGitUserInfo(type, socket, req) {
   })
 }
 
-// function invitation (type, socket, req) {
-//   fetch(gitConfig.invitItemURL, {
-//     method: "PUT",
-//     headers: {
-//       "Authorization": gitConfig.Authorization,
-//       "Accept": gitConfig.Accept
-//     },
-//   }).then(res => {
-//       console.log(res)
-//       console.log(res.text())
-//   })
-// }
-
 function joinCM (type, socket, req) {
   let data = {
     msg: 'Error',
@@ -179,32 +166,10 @@ function findDevUser (type, socket, req) {
   })
 }
 
-function uploadFile (type, socket, req) {
-  // logger.info(req)
-  socket.emit(type, req)
-  // let  form = new formidable.IncomingForm()
-  // form.uploadDir = req.name
-  // form.keepExtensions = true
-
-  // form.on('field', (field, value) => {
-  //   console.log(field)
-  //   console.log(value)
-  // })
-  // form.on('end', () => {
-  //   res.end('上传完成!')
-  // })
-
-  // form.parse(req)
-}
-
 function removeFile (type, socket, req) {
   // logger.info(fs.existsSync(req))
   try {
     let fileUrl = $$.config.file.upload + req.substr(req.lastIndexOf('/') + 1)
-    // logger.info(req)
-    // logger.info(fileUrl)
-    // logger.info(req.lastIndexOf('/'))
-
     if (fs.existsSync(fileUrl)) {
       fs.unlinkSync(fileUrl)
       socket.emit(type, {
@@ -232,6 +197,5 @@ module.exports = {
   joinCM,
   findDevUser,
   removeFile,
-  uploadFile
 }
 
