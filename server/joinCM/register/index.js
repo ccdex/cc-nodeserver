@@ -8,19 +8,19 @@ const DevUser = mongoose.model('DevUser')
 const fetch = require("node-fetch")
 // const formidable = require('formidable')
 const fs = require('fs')
+const async = require('async')
 
 const $$ = require(pathLink + '/server/public/methods/methods')
+const gitConfig = require(pathLink + '/static/js/config/github')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Register')
 
 function getGitUserInfo(type, socket, req) {
-
-  let url = $$.config.github.url
   const params = {
-    client_id: $$.config.github.client_id,
-    client_secret: $$.config.github.client_secret,
+    client_id: gitConfig.client_id,
+    client_secret: gitConfig.client_secret,
     code: req.code
   }
-  fetch(url, {
+  fetch(gitConfig.loginURL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -37,7 +37,7 @@ function getGitUserInfo(type, socket, req) {
     // logger.info(access_token)
     return access_token
   }).then(token => {
-    let url = "https://api.github.com/user?access_token=" + token
+    let url = gitConfig.userURL + token
     fetch(url).then(res2 => {
       return res2.json()
     }).then(response => {
@@ -45,7 +45,8 @@ function getGitUserInfo(type, socket, req) {
       if (response.login) {
         socket.emit(type, {
           msg: 'Success',
-          username: response.login
+          username: response.login,
+          email: response.email
         })
       } else {
         socket.emit(type, {
@@ -56,6 +57,19 @@ function getGitUserInfo(type, socket, req) {
     })
   })
 }
+
+// function invitation (type, socket, req) {
+//   fetch(gitConfig.invitItemURL, {
+//     method: "PUT",
+//     headers: {
+//       "Authorization": gitConfig.Authorization,
+//       "Accept": gitConfig.Accept
+//     },
+//   }).then(res => {
+//       console.log(res)
+//       console.log(res.text())
+//   })
+// }
 
 function joinCM (type, socket, req) {
   let data = {
@@ -77,28 +91,71 @@ function joinCM (type, socket, req) {
     socket.emit(type, data)
     return
   }
-  let params = {
-    gitID: req.gitID.replace(/\s/g, ''),
-    wx: req.wx.replace(/\s/g, ''),
-    email: req.email.replace(/\s/g, ''),
-    work: req.work.replace(/\s/g, ''),
-    city: req.city.replace(/\s/g, ''),
-    skill: req.skill.replace(/\s/g, ''),
-    fileUrl: req.fileUrl,
-    ref: req.ref.replace(/\s/g, ''),
-    address: req.address.replace(/\s/g, ''),
-    timestamp: Date.now()
-  }
-  // logger.info(params)
-  DevUser.update({gitID: req.gitID}, {'$set': params}, {upsert: true}).exec((err, res) => {
-    if (err) {
-      data.error = err.toString()
-    } else {
-      data.msg = 'Success'
-      data.info = res
+  async.waterfall([
+    (cb) => {
+      DevUser.findOne({gitID: req.gitID}).exec((err, res) => {
+        let state = {id: "", isInvited: ""}
+        if (res && res.gitID) {
+          state = {gitID: res.gitID, isInvited: res.isInvited ? res.isInvited : 0}
+        }
+        cb(null, state)
+      })
+    },
+    (state, cb) => {
+      if (state.gitID && state.isInvited) {
+        cb(null, 1)
+      } else {
+        let url = gitConfig.invitItemURL + req.gitID.replace(/\s/g, '')
+        // let url = gitConfig.invitItemURL + 'winter15627'
+        fetch(url, {
+          method: "PUT",
+          headers: {
+            "Authorization": gitConfig.Authorization,
+            "Accept": gitConfig.Accept
+          },
+        }).then(res => {
+          if (res.status === 200) {
+            cb(null, 1)
+          } else {
+            cb(null, 0)
+          }
+        })
+      }
+    },
+    (status, cb) => {
+      if (req.gitID.replace(/\s/g, '') === req.ref.replace(/\s/g, '')) {
+        req.ref = ''
+      }
+      
+      let params = {
+        gitID: req.gitID.replace(/\s/g, ''),
+        wx: req.wx.replace(/\s/g, ''),
+        email: req.email.replace(/\s/g, ''),
+        work: req.work.replace(/\s/g, ''),
+        city: req.city.replace(/\s/g, ''),
+        skill: req.skill.replace(/\s/g, ''),
+        fileUrl: req.fileUrl,
+        ref: req.ref.replace(/\s/g, ''),
+        address: req.address.replace(/\s/g, ''),
+        isInvited: status,
+        timestamp: Date.now()
+      }
+      // logger.info(params)
+      DevUser.update({gitID: req.gitID}, {'$set': params}, {upsert: true}).exec((err, res) => {
+        if (err) {
+          logger.error(err.toString())
+          data.error = err.toString()
+        } else {
+          data.msg = 'Success'
+          data.info = res
+        }
+        cb(null, data)
+      })
     }
+  ], () => {
     socket.emit(type, data)
   })
+  
 }
 
 function findDevUser (type, socket, req) {
@@ -167,6 +224,7 @@ function removeFile (type, socket, req) {
     })
   }
 }
+
 
 
 module.exports = {

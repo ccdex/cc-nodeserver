@@ -107,6 +107,13 @@ web3._extend({
       inputFormatter: [null],
       outputFormatter: null
     }),
+    new web3._extend.Method({
+      name: 'fsnGetBalance',
+      call: 'fsn_getBalance',
+      params: 3,
+      inputFormatter: [null, null, null],
+      outputFormatter: null
+    }),
   ]
 })
 

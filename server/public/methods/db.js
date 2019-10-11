@@ -234,6 +234,7 @@ const DevUser = new Schema({
   ref: {type: String},
   address: {type: String},
   timestamp: {type: Number},
+  isInvited: {type: Number}
 }, {collection: 'DevUsers'})
 
 const CodeImg = new Schema({
