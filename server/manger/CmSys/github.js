@@ -43,7 +43,7 @@ function goInvited (socket, req, type) {
     },
     (status, cb) => {
       if (status) {
-        DevUser.update({gitID: req.gitID}, {'$set': {isInvited: status}}, {upsert: true}).exec((err, res) => {
+        DevUser.update({gitID: req.gitID}, {'$set': {isInvited: status}}).exec((err, res) => {
           if (err) {
             logger.error(err.toString())
             data.error = err.toString()

@@ -12,6 +12,9 @@ function StartSocket (socket, io) {
   socket.on('joinCM', (req) => {
     register.joinCM('joinCM', socket, req)
   })
+  socket.on('editCM', (req) => {
+    register.editCM('editCM', socket, req)
+  })
   socket.on('findDevUser', (req) => {
     register.findDevUser('findDevUser', socket, req)
   })

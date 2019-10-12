@@ -233,7 +233,8 @@ const DevUser = new Schema({
   fileUrl: {type: Array},
   ref: {type: String},
   address: {type: String},
-  timestamp: {type: Number},
+  createTime: {type: Number},
+  updateTime: {type: Number},
   isInvited: {type: Number}
 }, {collection: 'DevUsers'})
 

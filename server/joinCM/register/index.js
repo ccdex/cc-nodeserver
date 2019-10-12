@@ -49,6 +49,7 @@ function getGitUserInfo(type, socket, req) {
           email: response.email
         })
       } else {
+        logger.error(response)
         socket.emit(type, {
           msg: 'Error',
           error: 'Timeout'
@@ -125,10 +126,12 @@ function joinCM (type, socket, req) {
         ref: req.ref.replace(/\s/g, ''),
         address: req.address.replace(/\s/g, ''),
         isInvited: status,
-        timestamp: Date.now()
+        createTime: Date.now()
       }
+      let devUser = new DevUser(params)
       // logger.info(params)
-      DevUser.update({gitID: req.gitID}, {'$set': params}, {upsert: true}).exec((err, res) => {
+      // DevUser.update({gitID: req.gitID}, {'$set': params}, {upsert: true}).exec((err, res) => {
+      devUser.save((err, res) => {
         if (err) {
           logger.error(err.toString())
           data.error = err.toString()
@@ -142,7 +145,49 @@ function joinCM (type, socket, req) {
   ], () => {
     socket.emit(type, data)
   })
-  
+}
+
+function editCM (type, socket, req) {
+  let data = {
+    msg: 'Error',
+    info: ''
+  }
+  let params = {}
+  if (req) {
+    if (req.wx || req.wx === 0) {
+      params.wx = req.wx
+    }
+    if (req.email || req.email === 0) {
+      params.email = req.email
+    }
+    if (req.work || req.work === 0) {
+      params.work = req.work
+    }
+    if (req.city || req.city === 0) {
+      params.city = req.city
+    }
+    if (req.skill || req.skill === 0) {
+      params.skill = req.skill
+    }
+    if (req.fileUrl || req.fileUrl === 0) {
+      params.fileUrl = req.fileUrl
+    }
+    if (req.address || req.address === 0) {
+      params.address = req.address
+    }
+  }
+  params.updateTime = Date.now()
+
+  DevUser.update({gitID: req.gitID}, {'$set': params}).exec((err, res) => {
+    if (err) {
+      logger.error(err.toString())
+      data.error = err.toString()
+    } else {
+      data.msg = 'Success'
+      data.info = res
+    }
+    socket.emit(type, data)
+  })
 }
 
 function findDevUser (type, socket, req) {
@@ -195,6 +240,7 @@ function removeFile (type, socket, req) {
 module.exports = {
   getGitUserInfo,
   joinCM,
+  editCM,
   findDevUser,
   removeFile,
 }
