@@ -9,15 +9,37 @@ const $$ = require(pathLink + '/server/public/methods/methods')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('UploadFile')
 
 router.post('/', (req, res) => {
-
-  let newName = req.files[0].path + path.parse(req.files[0].originalname).ext
-  let newName1 = $$.config.file.download + req.files[0].filename + path.parse(req.files[0].originalname).ext
-  fs.rename(req.files[0].path, newName, (err) => {
-    if (err) {
-      logger.error(err.toString())
+  fs.exists($$.config.file.upload, function(exists) {
+    if (exists) {
+      let newName = req.files[0].path + path.parse(req.files[0].originalname).ext
+      let newName1 = $$.config.file.download + req.files[0].filename + path.parse(req.files[0].originalname).ext
+      fs.rename(req.files[0].path, newName, (err) => {
+        if (err) {
+          logger.error(err)
+          res.send('')
+        } else {
+          res.send(newName1)
+        }
+      })
+    } else {
+      fs.mkdir($$.config.file.upload, (err) => {
+        if (err) {
+          logger.error(err)
+          res.send('')
+        } else {
+          let newName = req.files[0].path + path.parse(req.files[0].originalname).ext
+          let newName1 = $$.config.file.download + req.files[0].filename + path.parse(req.files[0].originalname).ext
+          fs.rename(req.files[0].path, newName, (error) => {
+            if (error) {
+              logger.error(error.toString())
+              res.send('')
+            } else {
+              res.send(newName1)
+            }
+          })
+        }
+      })
     }
-    res.send(newName1)
-    // res.send('newName1')
   })
 })
 
