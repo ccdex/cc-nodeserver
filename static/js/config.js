@@ -19,12 +19,6 @@ let publicSet = {
     // portal: 1,
     joinCM: 1,
   },
-  github: {
-    url: 'https://github.com/login/oauth/access_token',
-    client_id: 'e56c28cd332f0fe998b4',
-    client_secret: 'c4a1852ace5693ba16439ad9d67e330910e729ba'
-  },
-  uploadFileUrl: pathLink + '/uploadFile',
   file: {
     upload: 'C:/Program Files/nginx-1.16.0/html/uploadFile/',
     download: 'http://localhost:8098/uploadFile/'

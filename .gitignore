@@ -30,3 +30,4 @@ dist/index.html
 *.zip
 test.js
 test.js
+static/js/config/github.js
