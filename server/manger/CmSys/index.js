@@ -32,13 +32,13 @@ function CmList (socket, req, type) {
       }
     }
     if (req.timestamp) {
-      params.timestamp = req.timestamp
+      params.createTime = req.timestamp
     }
   }
 
   async.waterfall([
     (cb) => {
-      DevUser.find(params).sort({'timestamp': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
+      DevUser.find(params).sort({'createTime': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
         if (err) {
           cb(err)
         } else {
@@ -106,7 +106,7 @@ function CmEdit (socket, req, type) {
       params.address = req.address
     }
   }
-  params.timestamp = Date.now()
+  params.updateTime = Date.now()
   DevUser.updateOne({ _id: req.id }, params).exec((err, res) => {
     if (err) {
       data.error = err.toString()
@@ -135,7 +135,7 @@ function CmAdd (socket, req, type) {
     fileUrl: req.fileUrl,
     ref: req.ref.replace(/\s/g, ''),
     address: req.address.replace(/\s/g, ''),
-    timestamp: Date.now()
+    createTime: Date.now()
   })
   CmSys.save((err, res) => {
     if (err) {

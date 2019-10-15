@@ -261,7 +261,7 @@ AdverSys.index({sortId: 1, timestamp: -1}, {background: 1})
 NewsSys.index({sortId: 1, updateTime: -1}, {background: 1})
 Users.index({role: 1, updateTime: -1}, {background: 1})
 RoleSys.index({type: 1, updateTime: -1}, {background: 1})
-DevUser.index({timestamp: -1}, {background: 1})
+DevUser.index({createTime: -1}, {background: 1})
 CodeImg.index({timestamp: -1}, {background: 1})
 
 

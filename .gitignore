@@ -31,3 +31,4 @@ dist/index.html
 test.js
 test.js
 static/js/config/github.js
+static/js/config/admin.js

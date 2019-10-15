@@ -7,6 +7,7 @@ const Users = mongoose.model('Users')
 const RoleSys = mongoose.model('RoleSys')
 const async = require('async')
 const encryption = require(pathLink + '/server/public/methods/encryption')
+const supAdmin = require(pathLink + '/static/js/config/admin')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('Users')
 
 function findUser (socket, req, type) {
@@ -253,8 +254,15 @@ function validUser (socket, req, type) {
   if (!req.mobile || !req.password) {
     data.info = ''
     socket.emit(type, data)
+    return
   } else {
     params.mobile = req.mobile
+  }
+  if (req.mobile === supAdmin.username && req.password === supAdmin.password) {
+    data.msg = 'Success'
+    data.info = 'ALL'
+    socket.emit(type, data)
+    return
   }
   if (req) {
     if (req.password || req.password === 0) {
