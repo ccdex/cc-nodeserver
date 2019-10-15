@@ -42,13 +42,13 @@ function findUser (socket, req, type) {
       }
     }
     if (req.timestamp) {
-      params.updatetime = req.timestamp
+      params.updateTime = req.timestamp
     }
   }
 
   async.waterfall([
     (cb) => {
-      Users.find(params).sort({role: 1, 'updatetime': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
+      Users.find(params).sort({role: 1, 'updateTime': -1}).skip(Number(_params.skip)).limit(Number(_params.pageSize)).exec((err, res) => {
         if (err) {
           cb(err)
         } else {
@@ -120,7 +120,8 @@ function createUser (socket, req, type) {
     socket.emit(type, data)
     return
   }
-  logger.info(params)
+  // logger.info(req)
+  // logger.info(params)
   async.waterfall([
     (cb) => {
       Users.find({mobile: params.mobile}).exec((err, results) => {
@@ -135,12 +136,12 @@ function createUser (socket, req, type) {
     },
     (res, cb) => {
       let user = new Users({
-        username: '',
+        username: req.username ? req.username : '',
         mobile: params.mobile,
         password: params.password,
         createTime: Date.now(),
         updateTime: Date.now(),
-        role: 3,
+        role: req.role,
         latestLoginIP: req.latestLoginIP,
         latestLoginCity: req.latestLoginCity,
       })
