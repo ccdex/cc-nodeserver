@@ -125,6 +125,7 @@ function joinCM (type, socket, req) {
         fileUrl: req.fileUrl,
         ref: req.ref.replace(/\s/g, ''),
         address: req.address.replace(/\s/g, ''),
+        refCode: req.refCode.replace(/\s/g, ''),
         isInvited: status,
         createTime: Date.now()
       }
