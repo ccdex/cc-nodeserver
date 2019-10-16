@@ -185,8 +185,8 @@ function createUser (socket, req, type) {
 function deleUser (socket, req, type) {
   let params = {}
   let data = { msg: 'Error', info: '' }
-  if (req && req.mobile) {
-    params.mobile = req.mobile
+  if (req && req.id) {
+    params._id = req.id
   } else {
     data = { msg: 'Error', info: 'Mobile phone number cannot be empty!' }
     socket.emit(type, data)
@@ -199,6 +199,7 @@ function deleUser (socket, req, type) {
       data.msg = 'Success'
       data.info = res
     }
+
     socket.emit(type, data)
   })
 }
