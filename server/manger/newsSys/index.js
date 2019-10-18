@@ -78,29 +78,35 @@ function newsEdit (socket, req, type) {
   }
 
   if (req) {
-    if (req.sortId || req.sortId === 0) {
-      params.sortId = req.sortId
+    if (req.type || req.type === 0) {
+      params.type = req.type
+    }
+    if (req.title || req.title === 0) {
+      params.title = req.title
+    }
+    if (req.author || req.author === 0) {
+      params.author = req.author
+    }
+    if (req.content || req.content === 0) {
+      params.content = req.content
+    }
+    if (req.label || req.label === 0) {
+      params.label = req.label
+    }
+    if (req.url || req.url === 0) {
+      params.url = req.url
     }
     if (req.isOutside || req.isOutside === 0) {
       params.isOutside = req.isOutside
+    }
+    if (req.sortId || req.sortId === 0) {
+      params.sortId = req.sortId
     }
     if (req.isShow || req.isShow === 0) {
       params.isShow = req.isShow
     }
     if (req.remark || req.remark === 0) {
       params.remark = req.remark
-    }
-    if (req.url || req.url === 0) {
-      params.url = req.url
-    }
-    if (req.title || req.title === 0) {
-      params.title = req.title
-    }
-    if (req.content || req.content === 0) {
-      params.content = req.content
-    }
-    if (req.author || req.author === 0) {
-      params.author = req.author
     }
   }
   params.updateTime = Date.now()
@@ -123,16 +129,19 @@ function newsAdd (socket, req, type) {
   }
 
   let newsSys = new NewsSys({
+    type: req.type,
+    title: req.title,
+    author: req.author,
     createTime: Date.now(),
     updateTime: Date.now(),
-    sortId: req.sortId,
-    isOutside: req.isOutside,
-    isShow: req.isShow,
-    url: req.url,
-    remark: req.remark,
-    title: req.title,
+    clicks: 0,
     content: req.content,
-    author: req.author
+    label: req.label,
+    url: req.url,
+    isOutside: req.isOutside,
+    sortId: req.sortId,
+    isShow: req.isShow,
+    remark: req.remark,
   })
   newsSys.save((err, res) => {
     if (err) {

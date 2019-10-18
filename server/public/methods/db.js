@@ -187,16 +187,19 @@ const AdverSys = new Schema({
 }, {collection: "AdverSys"})
 
 const NewsSys = new Schema({
+  type: {type: Number},
+  title: {type: String},
+  author: {type: String},
   createTime: {type: Number},
   updateTime: {type: Number},
-  sortId: {type: Number},
-  url: {type: String},
-  remark: {type: String},
-  title: {type: String},
+  clicks: {type: Number},
   content: {type: String},
-  author: {type: String},
+  label: {type: String},
+  url: {type: String},
+  sortId: {type: Number},
   isOutside: {type: Number},
   isShow: {type: Number},
+  remark: {type: String},
 }, {collection: "NewsSys"})
 
 const Users = new Schema({
