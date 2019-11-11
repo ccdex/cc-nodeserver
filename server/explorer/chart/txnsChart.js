@@ -7,13 +7,14 @@ const Transaction = mongoose.model( 'Transaction' )
 const Block = mongoose.model( 'Block' )
 const Accounts = mongoose.model( 'Accounts' )
 const async = require('async')
+const moment = require('moment')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('TxnsChart')
 
 // router.post('/transfer', (req, res) => {
 // function transfer(socket, req) {
 const timeInterval = 1 * 60 * 60 * 24,
       // startTime = new Date('1970-01-01 00:00:00') / 1000
-      startTime = 0
+      startTime = new Date(moment('1970-01-01')) / 1000
 
 function TxnsChart (socket, req, type) {
 	let data = {
@@ -27,7 +28,7 @@ function TxnsChart (socket, req, type) {
     (cb) => {
       Transaction.aggregate([
         // {$match:}
-        {$sort: {'timestamp': 1}},
+        {$sort: {blockNumber: -1, timestamp: -1}},
         {$group: {
           _id: {
             $subtract: [
@@ -56,7 +57,7 @@ function TxnsChart (socket, req, type) {
     (txns, cb) => {
       Block.aggregate([
         {$match: {'number': {$gt: 0} }},
-        {$sort: {'timestamp': 1}},
+        {$sort: {number: -1, timestamp: -1}},
         {$group: {
           _id: {
             $subtract: [

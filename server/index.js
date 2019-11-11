@@ -8,7 +8,6 @@ const explorerEnter = require(pathLink + '/server/enterGroup/explorer')
 const dexappEnter = require(pathLink + '/server/enterGroup/dexapp')
 const manger = require(pathLink + '/server/enterGroup/manger')
 const public = require(pathLink + '/server/enterGroup/public')
-const joinCM = require(pathLink + '/server/enterGroup/joinCM')
 
 
 function StartSocket (socket, io) {
@@ -24,9 +23,6 @@ function StartSocket (socket, io) {
     }
     if ($$.config.isUseEnters.manger) {
         manger(socket, io)
-    }
-    if ($$.config.isUseEnters.joinCM) {
-        joinCM(socket, io)
     }
 }
 

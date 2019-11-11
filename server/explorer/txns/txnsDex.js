@@ -5,7 +5,7 @@ require( pathLink + '/server/public/methods/db.js' )
 const mongoose = require( 'mongoose' )
 const DexTxns = mongoose.model( 'DexTxns' )
 const async = require('async')
-const web3 = require(pathLink + '/server/public/methods/web3')
+// const web3 = require(pathLink + '/server/public/methods/web3')
 const logger = require(pathLink + '/server/public/methods/log4js').getLogger('TxnsDex')
 
 

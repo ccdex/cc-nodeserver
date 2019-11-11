@@ -33,14 +33,6 @@ const httpServer = http.createServer(app).listen(httpPort)
 const io = require('socket.io')({})
 io.attach(httpServer)
 
-/**
- * router
- * 
- */
-const uploadFile = require(pathLink + '/server/joinCM/uploadFile/index')
-
-app.use('/uploadFile', uploadFile)
-
 
 /**
  * socket
